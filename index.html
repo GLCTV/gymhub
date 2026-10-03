@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="ro"><head><meta charset="utf-8"><title>GymHub</title>
+<meta name="author" content="GLC_TV"><!-- © 2026 GLC_TV. All rights reserved. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap">
+<style>
+:root{--bg:#F5F6F2;--card:#fff;--ink:#16202E;--mute:#6B7585;--line:#E3E6DE;--acc:#2B50F5;--accI:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141B;--card:#1A202A;--ink:#EDF0F5;--mute:#8F9AAB;--line:#272F3B;--acc:#7893FF;--accI:#0B1020}}
+:root[data-theme="dark"]{--bg:#10141B;--card:#1A202A;--ink:#EDF0F5;--mute:#8F9AAB;--line:#272F3B;--acc:#7893FF;--accI:#0B1020}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Manrope,-apple-system,system-ui,sans-serif;padding-bottom:84px}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px 4px;max-width:560px;margin:auto}
+h1{font-size:22px;margin:0;font-weight:800;letter-spacing:-.02em}
+h2{font-size:20px;margin:0 0 12px;font-weight:800;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+main{padding:12px 20px;max-width:560px;margin:auto}
+.lg{border:1.5px solid var(--line);border-radius:99px;padding:6px 14px;font-weight:700;background:var(--card)}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mh h2{margin:0;text-transform:capitalize}
+.mh div{text-align:center}
+.mh small{color:var(--mute)}
+.x{width:36px;height:36px;border-radius:50%;font-size:22px;line-height:1;color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.grid>span{color:var(--mute);font-size:13px;font-weight:600;padding:4px 0}
+.day{aspect-ratio:1;border-radius:12px;background:var(--card);border:1.5px solid transparent;font-weight:600}
+.day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.day b{font-weight:inherit;font-size:15px}
+.day.on{background:color-mix(in srgb,var(--acc) 16%,var(--card));font-weight:800}
+.day.sel{background:var(--acc);color:var(--accI)}
+.day.td{border-color:var(--acc)}
+.btn{width:100%;padding:14px;border-radius:14px;background:var(--acc);color:var(--accI);font-weight:700;margin-top:16px}
+.btn.s{width:auto;margin:0;padding:10px 14px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0}
+.chip{white-space:nowrap;padding:8px 14px;border-radius:99px;background:var(--card);font-weight:600;font-size:14px}
+.chip.on{background:var(--ink);color:var(--bg)}
+.q,.add input{width:100%;min-width:0;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.row{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:12px 14px;margin-bottom:8px;border-radius:14px;background:var(--card)}
+.row small{display:block;color:var(--mute)}
+.row i{font-style:normal;font-size:22px;color:var(--acc)}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 12px calc(6px + env(safe-area-inset-bottom,0px))}
+.tab{flex:1;padding:12px;font-weight:700;color:var(--mute)}
+.tab.on{color:var(--acc)}
+#sheet,#big{position:fixed;inset:0;background:rgba(10,14,22,.5);display:flex;align-items:flex-end;z-index:5}
+#sheet[hidden],#big[hidden]{display:none}
+#big{z-index:6}
+.th.big{width:100%;height:auto;aspect-ratio:100/80;margin:8px 0}
+.eqs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.gh{display:flex;align-items:center;gap:6px;margin:18px 0 8px;font-size:15px}.gh i{width:9px;height:9px;border-radius:50%}
+.th{cursor:pointer}
+.panel{background:var(--bg);width:100%;max-width:560px;margin:auto;max-height:90%;overflow:auto;border-radius:22px 22px 0 0;padding:16px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.ph,.ch{display:flex;justify-content:space-between;align-items:center}
+.ph h2{margin:0;text-transform:capitalize}
+.card{background:var(--card);border-radius:16px;padding:12px 14px;margin-top:12px}
+.set{display:flex;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.set span:nth-child(2){flex:1}
+.add{display:flex;gap:8px;margin-top:8px}
+.ghost{color:var(--acc);font-weight:700;padding:8px 0}
+.empty{color:var(--mute)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.dots{display:flex;gap:2px;height:6px}.dots i{width:6px;height:6px;border-radius:50%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat{background:var(--card);border-radius:14px;padding:10px;text-align:center}.stat b{display:block;font-size:22px}.stat small{color:var(--mute)}
+.leg{display:flex;flex-wrap:wrap;gap:6px 12px;margin:14px 0;font-size:13px;color:var(--mute)}.leg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.th{flex:none;width:64px;height:52px;border-radius:12px;background:var(--bg);display:grid;place-items:center;margin-right:12px;overflow:hidden}.th svg{width:100%;height:100%}
+.row>span:not(.th){flex:1}.card .th{width:48px;height:40px;margin-right:10px}
+.it{display:flex;align-items:center;margin-top:10px}.ch .it{margin:0}
+.btn.off{opacity:.45}
+#tg{color:var(--mute);font-size:13px}
+.tab{padding:12px 4px;font-size:14px}
+.chip.off{opacity:.4}
+.fld{display:flex;flex-direction:column;gap:4px;flex:1;font-size:13px;color:var(--mute)}.flds{display:flex;gap:8px;margin:12px 0}
+.fld input{padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;width:100%;min-width:0}
+.meal ul{list-style:none;margin:8px 0 0;padding:0}.meal li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--line)}
+.mt{display:flex;align-items:baseline;gap:10px}.mt .tm{font-size:20px}.mt small{margin-left:auto;color:var(--mute)}.mm{display:block;color:var(--mute);margin-top:8px}
+.sl{display:block;margin-top:12px}.sl>span{display:flex;justify-content:space-between}.sl input{width:100%;accent-color:var(--acc)}
+@keyframes up{from{transform:translateY(100%)}}
+@keyframes dn{to{transform:translateY(100%)}}
+@keyframes fd{from{opacity:0}}
+@keyframes pg{from{opacity:0;transform:translateY(8px) scale(.99)}}
+#v.go{animation:pg .4s cubic-bezier(.32,.72,0,1)}
+#sheet:not([hidden]),#big:not([hidden]){animation:fd .25s}
+#sheet,#big{transition:background .24s}
+#sheet.fo{background:rgba(10,14,22,0)}
+.panel.in{animation:up .4s cubic-bezier(.32,.72,0,1)}
+.panel.out{animation:dn .24s ease-in forwards}
+button{transition:transform .15s,opacity .15s,background .25s,color .25s}
+button:active{transform:scale(.96);opacity:.85}
+header{position:sticky;top:0;z-index:3;background:color-mix(in srgb,var(--bg) 78%,transparent);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%)}
+.tabs{background:color-mix(in srgb,var(--card) 78%,transparent);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
+.tab{position:relative}
+.ind{position:absolute;left:12px;top:6px;bottom:calc(6px + env(safe-area-inset-bottom,0px));width:calc((100% - 24px)/4);border-radius:14px;background:color-mix(in srgb,var(--acc) 14%,transparent);transform:translateX(calc(var(--i,0)*100%));transition:transform .4s cubic-bezier(.32,.72,0,1);pointer-events:none}
+#v>h2:first-child{font-size:32px;letter-spacing:-.02em}
+h3{font-size:17px;margin:16px 0 8px}
+.seg{display:flex;background:color-mix(in srgb,var(--ink) 8%,transparent);border-radius:11px;padding:2px;gap:2px;margin:4px 0 14px}
+.seg button{flex:1;padding:8px 4px;border-radius:9px;font-size:13px;font-weight:600;color:var(--mute)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.group{background:var(--card);border-radius:16px;overflow:hidden;margin:12px 0}
+.srow{display:flex;justify-content:space-between;align-items:center;width:100%;padding:12px 16px;text-align:left;border-bottom:1px solid var(--line)}
+.group>.srow:last-child{border-bottom:0}
+.tg{flex:none;width:51px;height:31px;border-radius:99px;background:color-mix(in srgb,var(--ink) 18%,transparent);position:relative;transition:background .25s}
+.tg::after{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.tg.on{background:#34C759}.tg.on::after{transform:translateX(20px)}
+.callout{background:color-mix(in srgb,var(--acc) 12%,var(--card));border-radius:16px;padding:14px 16px;margin:14px 0}.callout p{margin:6px 0 0}
+.bar{height:6px;border-radius:99px;background:color-mix(in srgb,var(--ink) 10%,transparent);overflow:hidden;margin:10px 0}.bar i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width .4s}
+#wk{position:fixed;inset:0;z-index:8;background:var(--bg);overflow:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px))}
+#wk[hidden]{display:none}#wk:not([hidden]){animation:up .4s cubic-bezier(.32,.72,0,1)}
+#wk .th.big{width:min(100%,280px);margin:8px auto}
+.stp{display:flex;align-items:center;justify-content:space-between;margin-top:12px}.stp>div{display:flex;align-items:center;gap:14px}.stp b{min-width:72px;text-align:center;font-size:22px}.stp .x{background:var(--card);width:44px;height:44px;color:var(--ink);font-size:26px}
+.rt{font-size:56px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:20;white-space:nowrap}#toast.on{opacity:1}
+.pb{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}.pb span{width:92px;color:var(--mute)}.pb div{flex:1;height:10px;border-radius:99px;background:color-mix(in srgb,var(--ink) 8%,transparent);overflow:hidden}.pb i{display:block;height:100%;border-radius:99px}
+.cht{width:100%;height:auto;display:block}
+.meal li{align-items:center}.meal li>span{flex:1}.meal li .x{width:30px;height:30px;font-size:16px;color:var(--acc)}
+select.q{appearance:none;margin:6px 0 10px}
+.hb{display:flex;gap:8px}
+.lg.st-ok::before,.lg.st-sync::before,.lg.st-err::before,.lg.st-off::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--mute)}
+.lg.st-ok::before{background:#34C759}.lg.st-sync::before{background:#FF9F0A}.lg.st-err::before{background:#FF453A}
+textarea.q{font:12px/1.4 ui-monospace,monospace;margin:10px 0;resize:vertical}
+#ft{max-width:560px;margin:8px auto 0;padding:0 20px 8px;text-align:center;color:var(--mute);font-size:12px}
+#rbn{max-width:560px;margin:0 auto;padding:0 20px}#rbn[hidden]{display:none}
+</style></head><body>
+<header><div><h1>GymHub</h1><small id="tg"></small></div><div class="hb"><button class="lg" id="ac"></button><button class="lg" id="lg"></button></div></header>
+<div id="rbn" hidden></div>
+<main id="v"></main><footer id="ft"></footer>
+<div id="sheet" hidden></div><div id="big" hidden></div><div id="wk" hidden></div><div id="toast"></div>
+<nav class="tabs"><i class="ind"></i><button class="tab" data-t="cal"></button><button class="tab" data-t="lib"></button><button class="tab" data-t="home"></button><button class="tab" data-t="food"></button></nav>
+<script>
+const L=`chest|barbell|Barbell bench press|Împins la piept cu bara
+chest|dumbbell|Incline dumbbell press|Împins înclinat cu gantere
+chest|dumbbell|Dumbbell fly|Fluturări cu gantere
+chest|machine|Chest press machine|Împins la aparat
+chest|cable|Cable crossover|Crossover la cabluri
+chest|body|Push-up|Flotări
+back|barbell|Deadlift|Îndreptări
+back|body|Pull-up|Tracțiuni la bară
+back|cable|Lat pulldown|Tracțiuni la helcometru
+back|barbell|Barbell row|Ramat cu bara
+back|cable|Seated cable row|Ramat la cablu
+back|dumbbell|One-arm dumbbell row|Ramat cu ganteră
+legs|barbell|Squat|Genuflexiuni
+legs|machine|Leg press|Presă pentru picioare
+legs|barbell|Romanian deadlift|Îndreptări românești
+legs|dumbbell|Lunges|Fandări
+legs|machine|Leg extension|Extensii pentru picioare
+legs|machine|Leg curl|Flexii pentru picioare
+legs|machine|Calf raise|Ridicări pe vârfuri
+legs|barbell|Hip thrust|Hip thrust
+shoulders|barbell|Overhead press|Împins deasupra capului
+shoulders|dumbbell|Dumbbell shoulder press|Împins umeri cu gantere
+shoulders|dumbbell|Lateral raise|Ridicări laterale
+shoulders|cable|Face pull|Face pull
+shoulders|dumbbell|Rear delt fly|Fluturări pentru spate
+shoulders|dumbbell|Shrugs|Ridicări de umeri
+arms|barbell|Barbell curl|Flexii cu bara
+arms|dumbbell|Hammer curl|Flexii ciocan
+arms|cable|Triceps pushdown|Extensii triceps la cablu
+arms|barbell|Skull crusher|Extensii triceps culcat
+arms|body|Dips|Împins la paralele
+arms|barbell|Preacher curl|Flexii pe bancă Scott
+core|body|Plank|Plank
+core|body|Crunch|Abdomene
+core|body|Hanging leg raise|Ridicări de picioare la bară
+core|body|Russian twist|Răsucire rusească
+core|cable|Cable crunch|Abdomene la cablu
+core|body|Ab wheel|Roata abdominală`.split('\n').map((s,i)=>{const[g,e,en,ro]=s.split('|');return{id:i,g,e,en,ro}});
+const T={en:{cal:'Calendar',lib:'Exercises',all:'All',chest:'Chest',back:'Back',legs:'Legs',shoulders:'Shoulders',arms:'Arms',core:'Core',barbell:'Barbell',dumbbell:'Dumbbells',machine:'Gym machine',cable:'Cable pulley',body:'Bodyweight',search:'Search exercises',add:'Add exercise',empty:'Nothing logged for this day yet.',set:'Add set',reps:'reps',kg:'kg',del:'Remove',close:'Close',ret:'Back',days:'workout days',home:'Home gym',bench:'Bench',pullbar:'Pull-up bar',dipbars:'Dip bars',wheel:'Ab wheel',homeh:'What can you train with at home?',homed:'Tick everything you have. We show the exercises that fit. Exercises without equipment are always included.',tag:'Gym, home workouts, food',subl:'Library',subf:'Focus',subp:'Plan',subt:'Templates',ft:'Made by GLC_TV. © 2026 GLC_TV. All rights reserved.',abkh:'Automatic backups on this phone',abk_note:'GymHub saves a copy of your data once a day on this phone (the last 14 days), with no account needed. If your data disappears, restore a copy here. Copies live in the browser, so clearing browser data deletes them too: export a file now and then.',abk_none:'No copies yet.',abk_rest:'Restore',abk_days:'days logged',abk_pre:'Before the last restore',abk_done:'Copy restored',rbn_t:'We found a backup from {a} on this phone. Restore it?',rbn_no:'Not now',rem_t:'You have not exported a backup file for {a} days.',rem_never:'You have never exported a backup file.',rem_go:'Export now',rem_later:'Later',acct:'Account',acch:'Account and data',ac_ok:'Synced with your Claude account.',ac_last:'Last sync',ac_sync:'Syncing...',ac_off:'Sync is not available here. Open GymHub while signed in to Claude to sync between phones. Your data stays on this phone.',ac_err:'Sync failed. Your data is safe on this phone. Try again.',ac_note:'Your account is your Claude account. Data is private to you and syncs between the devices where you open GymHub signed in.',ac_now:'Sync now',bkh:'Manual backup',bk_note:'Export saves your journal, templates and settings to a file. Import adds a backup to what you already have; nothing is deleted.',bk_exp:'Export data',bk_imp:'Import data',bk_paste:'Paste backup text here, or choose a file below',bk_done:'Import finished',bk_bad:'This is not a GymHub backup.',bk_saved:'Backup saved',bk_manual:'Copy the text from the box and save it in a file.',bk_copy:'Copy text',bk_copied:'Copied',progress:'Progress',pw:'workouts logged',pwk:'workouts this week',pst:'weeks in a row (2+ workouts)',pvol:'kg lifted this month',pc1:'Sets per week (last 8 weeks)',pc2:'Sets this week by muscle group',pc3:'Progress by exercise',pc4:'Personal records',pnoh:'Log some workouts to see your progress here.',pmore:'Log this exercise at least twice to see the trend.',e1rm:'Estimated 1RM',tinfo:'Save a workout as a template, then start it with a rest timer between sets.',tnone:'No templates yet. Open a day in the calendar, add exercises and tap "Save as template", or save a session from the Plan tab.',tname:'Template name',tsave:'Save as template',tsaved:'Template saved',tpl:'Workout',wstart:'Start workout',wtoday:'Today',wex:'Exercise',wset:'Set',wdone:'Set done',wnext:'Next exercise',wfin:'Finish workout',wrest:'Rest',wskip:'Skip rest',wlen:'Rest between sets',wsaved:'Workout saved',prefh:'Food preferences',pv:'Vegetarian (no meat or fish)',pd:'No dairy',pg:'No gluten',pe:'No eggs',pf:'No fish',pn:'No nuts or peanuts',allg:'Foods are swapped automatically. For allergies, always check product labels. Tap ⇄ next to a food to swap it yourself.',swap:'Swap',swapfor:'Swap for',reset:'Back to default',fh:'Which body part do you want to grow faster?',fd:'Pick one. We suggest the best exercises for it, with sets and reps.',ftip:'Train it twice a week, about {a} sets per week in total. Start with the heavy exercises, then the lighter ones. Rest 2 minutes between heavy sets and 60-90 seconds between light ones.',alt:'Alternatives',noeq:'No exercises for this with your home equipment. Add equipment in the Home gym tab.',ponly:'Use only my home equipment',pdays:'Days per week',pfoc:'Priority body part (optional)',pnone:'None',day:'Day',addsess:'Add session to today',pnote:'Rest 2 minutes between heavy sets and 60-90 seconds between light ones. Leave at least one rest day between workouts for the same muscles.',pinfo:'Sets and reps are adjusted to {a} days a week: fewer days mean fewer exercises per muscle but more sets each, more days mean lighter work per session.',s_full:'Full body',s_push:'Push (chest, shoulders, triceps)',s_pull:'Pull (back, biceps)',s_legs:'Legs',s_upper:'Upper body',s_lower:'Lower body',a18:'Important: all suggestions in this tab are for people over 18.',rest_t:'Rest is essential',rest_x:'Muscles grow while you rest, not during the workout. Sleep 7-9 hours a night, take 1-2 full rest days a week, and do not train the same muscles two days in a row. Food and training only work if you recover.',food:'Meals',sL:'Sets',rL:'Reps',wL:'Weight',ptitle:'7-day meal plan',pdesc:'Enter your details. We calculate your calories and build a plan with exact grams and meal times.',male:'Male',female:'Female',age:'Age',height:'Height (cm)',weight:'Weight (kg)',act:'How active are you?',a0:'Light: 1-3 workouts a week',a1:'Moderate: 3-5 workouts a week',a2:'High: 6-7 workouts a week',goalh:'Choose your goal',goalbulk:'Bulk (gain muscle)',goalmaint:'Maintain',goalcut:'Cut (lose fat)',need:'Fill in your age, height and weight to see your plan.',adult:'Meal plans are for adults (18+).',lowbmi:'The cut plan is not offered at your weight. Choose maintain or bulk.',burn:'You burn about {a} kcal a day. This plan: {b} kcal a day.',prot:'Protein',carb:'Carbs',fat:'Fat',water:'Drink about X L of water a day.',cooked:'All amounts are in grams. Rice, pasta, potatoes, lentils and meat are weighed cooked. Oats, bread and oil are weighed as they are. Eat the 17:00 snack 1-2 hours before training.',disc:'General guidance, not medical advice. If you have a health condition, talk to a doctor or dietitian.',m_B:'Breakfast',m_S1:'Snack',m_L:'Lunch',m_S2:'Pre-workout snack',m_D:'Dinner',m_N:'Late snack',avail:'exercises you can do',sug:'Suggest a workout',sugadd:'Add to today',hint:'Tap a picture to see how the exercise is done.',today:'Log today',exs:'exercises',sets:'sets',rest:'Rest day, nothing logged.',edit:'Edit this day',addd:'Add exercises'},
+ro:{cal:'Calendar',lib:'Exerciții',all:'Toate',chest:'Piept',back:'Spate',legs:'Picioare',shoulders:'Umeri',arms:'Brațe',core:'Abdomen',barbell:'Bară',dumbbell:'Gantere',machine:'Aparat de sală',cable:'Scripete (cablu)',body:'Greutatea corpului',search:'Caută exerciții',add:'Adaugă exercițiu',empty:'Nimic notat pentru această zi.',set:'Adaugă set',reps:'rep.',kg:'kg',del:'Șterge',close:'Închide',ret:'Înapoi',days:'zile de antrenament',home:'Gym acasă',bench:'Bancă',pullbar:'Bară de tracțiuni',dipbars:'Paralele',wheel:'Roată abdominală',homeh:'Cu ce te poți antrena acasă?',homed:'Bifează tot ce ai în casă. Îți arătăm exercițiile potrivite. Exercițiile fără echipament sunt incluse mereu.',tag:'Sală, antrenament acasă, mâncare',subl:'Bibliotecă',subf:'Focus',subp:'Plan',subt:'Șabloane',ft:'Realizat de GLC_TV. © 2026 GLC_TV. Toate drepturile rezervate.',abkh:'Copii de siguranță automate pe acest telefon',abk_note:'GymHub salvează automat o copie a datelor o dată pe zi pe acest telefon (ultimele 14 zile), fără cont. Dacă datele dispar, restaurezi o copie de aici. Copiile sunt în browser, deci se șterg dacă ștergi datele browserului: exportă din când în când și un fișier.',abk_none:'Încă nu există copii.',abk_rest:'Restaurează',abk_days:'zile notate',abk_pre:'Înainte de ultima restaurare',abk_done:'Copie restaurată',rbn_t:'Am găsit o copie de siguranță din {a} pe acest telefon. O restaurezi?',rbn_no:'Nu acum',rem_t:'Nu ai exportat un fișier de backup de {a} zile.',rem_never:'Nu ai exportat niciodată un fișier de backup.',rem_go:'Exportă acum',rem_later:'Mai târziu',acct:'Cont',acch:'Cont și date',ac_ok:'Sincronizat cu contul tău Claude.',ac_last:'Ultima sincronizare',ac_sync:'Se sincronizează...',ac_off:'Sincronizarea nu este disponibilă aici. Deschide GymHub conectat la Claude ca să sincronizezi între telefoane. Datele rămân pe acest telefon.',ac_err:'Sincronizarea a eșuat. Datele sunt în siguranță pe telefon. Încearcă din nou.',ac_note:'Contul tău este contul tău Claude. Datele sunt private și se sincronizează între dispozitivele pe care deschizi GymHub conectat la Claude.',ac_now:'Sincronizează acum',bkh:'Backup manual',bk_note:'Exportul salvează jurnalul, șabloanele și setările într-un fișier. Importul adaugă un backup la ce ai deja; nu se șterge nimic.',bk_exp:'Exportă datele',bk_imp:'Importă datele',bk_paste:'Lipește aici textul backup-ului sau alege un fișier mai jos',bk_done:'Import terminat',bk_bad:'Acesta nu este un backup GymHub.',bk_saved:'Backup salvat',bk_manual:'Copiază textul din casetă și salvează-l într-un fișier.',bk_copy:'Copiază textul',bk_copied:'Copiat',progress:'Progres',pw:'antrenamente notate',pwk:'antrenamente săptămâna asta',pst:'săptămâni la rând (2+ antrenamente)',pvol:'kg ridicate luna asta',pc1:'Seturi pe săptămână (ultimele 8 săptămâni)',pc2:'Seturi săptămâna asta pe grupe musculare',pc3:'Progresul la un exercițiu',pc4:'Recorduri personale',pnoh:'Notează câteva antrenamente ca să-ți vezi progresul aici.',pmore:'Notează acest exercițiu de cel puțin două ori ca să vezi evoluția.',e1rm:'1RM estimat',tinfo:'Salvează un antrenament ca șablon, apoi pornește-l cu cronometru de pauză între seturi.',tnone:'Nu ai încă șabloane. Deschide o zi din calendar, adaugă exerciții și apasă „Salvează ca șablon”, sau salvează un antrenament din tabul Plan.',tname:'Numele șablonului',tsave:'Salvează ca șablon',tsaved:'Șablon salvat',tpl:'Antrenament',wstart:'Începe antrenamentul',wtoday:'Azi',wex:'Exercițiul',wset:'Setul',wdone:'Set terminat',wnext:'Exercițiul următor',wfin:'Termină antrenamentul',wrest:'Pauză',wskip:'Sari peste pauză',wlen:'Pauză între seturi',wsaved:'Antrenament salvat',prefh:'Preferințe alimentare',pv:'Vegetarian (fără carne și pește)',pd:'Fără lactate',pg:'Fără gluten',pe:'Fără ouă',pf:'Fără pește',pn:'Fără nuci și arahide',allg:'Alimentele se înlocuiesc automat. Dacă ai alergii, verifică mereu etichetele produselor. Apasă ⇄ lângă un aliment ca să-l schimbi singur.',swap:'Schimbă',swapfor:'Înlocuiește cu',reset:'Revino la varianta inițială',fh:'Ce parte a corpului vrei să dezvolți mai repede?',fd:'Alege una. Îți sugerăm cele mai bune exerciții pentru ea, cu seturi și repetări.',ftip:'Antrenează-o de 2 ori pe săptămână, aproximativ {a} seturi în total pe săptămână. Începe cu exercițiile grele, apoi cu cele mai ușoare. Odihnește-te 2 minute între seturile grele și 60-90 de secunde între cele ușoare.',alt:'Alternative',noeq:'Nu există exerciții pentru asta cu echipamentul tău de acasă. Adaugă echipament în tabul Gym acasă.',ponly:'Folosește doar echipamentul meu de acasă',pdays:'Zile pe săptămână',pfoc:'Zona prioritară (opțional)',pnone:'Niciuna',day:'Ziua',addsess:'Adaugă antrenamentul la azi',pnote:'Odihnește-te 2 minute între seturile grele și 60-90 de secunde între cele ușoare. Lasă cel puțin o zi liberă între antrenamentele pentru aceiași mușchi.',pinfo:'Seturile și repetările sunt ajustate pentru {a} zile pe săptămână: mai puține zile înseamnă mai puține exerciții pe mușchi, dar mai multe seturi la fiecare; mai multe zile înseamnă un efort mai ușor la fiecare antrenament.',s_full:'Tot corpul',s_push:'Împingere (piept, umeri, triceps)',s_pull:'Tragere (spate, biceps)',s_legs:'Picioare',s_upper:'Partea de sus',s_lower:'Partea de jos',a18:'Important: toate sugestiile din acest tab sunt pentru persoane peste 18 ani.',rest_t:'Odihna este esențială',rest_x:'Mușchii cresc cât te odihnești, nu în timpul antrenamentului. Dormi 7-9 ore pe noapte, ia 1-2 zile libere complete pe săptămână și nu antrena aceiași mușchi două zile la rând. Mâncarea și antrenamentul funcționează doar dacă te refaci.',food:'Mâncare',sL:'Seturi',rL:'Repetări',wL:'Greutate',ptitle:'Plan de mâncare pe 7 zile',pdesc:'Introdu datele tale. Calculăm caloriile și facem un plan cu gramaje exacte și ore de masă.',male:'Bărbat',female:'Femeie',age:'Vârsta',height:'Înălțime (cm)',weight:'Greutate (kg)',act:'Cât de activ ești?',a0:'Ușor: 1-3 antrenamente pe săptămână',a1:'Mediu: 3-5 antrenamente pe săptămână',a2:'Mare: 6-7 antrenamente pe săptămână',goalh:'Alege obiectivul',goalbulk:'Bulk (masă musculară)',goalmaint:'Menținere',goalcut:'Slăbire',need:'Completează vârsta, înălțimea și greutatea ca să vezi planul.',adult:'Planurile de mâncare sunt pentru adulți (18+).',lowbmi:'Planul de slăbire nu se oferă la greutatea ta. Alege menținere sau bulk.',burn:'Arzi aproximativ {a} kcal pe zi. Planul: {b} kcal pe zi.',prot:'Proteine',carb:'Carbo',fat:'Grăsimi',water:'Bea aproximativ X L de apă pe zi.',cooked:'Toate cantitățile sunt în grame. Orezul, pastele, cartofii, linta și carnea se cântăresc gătite. Ovăzul, pâinea și uleiul se cântăresc ca atare. Mănâncă gustarea de la 17:00 cu 1-2 ore înainte de antrenament.',disc:'Informații generale, nu sfat medical. Dacă ai o boală, vorbește cu un medic sau un nutriționist.',m_B:'Mic dejun',m_S1:'Gustare',m_L:'Prânz',m_S2:'Gustare înainte de antrenament',m_D:'Cină',m_N:'Gustare de seară',avail:'exerciții pe care le poți face',sug:'Sugerează un antrenament',sugadd:'Adaugă la azi',hint:'Apasă pe poză ca să vezi cum se face exercițiul.',today:'Notează azi',exs:'exerciții',sets:'seturi',rest:'Zi liberă, nimic notat.',edit:'Modifică ziua',addd:'Adaugă exerciții'}};
+const $=s=>document.querySelector(s);
+const h=(t,a={},...k)=>{const e=document.createElement(t);for(const n in a){n=='class'?e.className=a[n]:n.startsWith('on')?e[n]=a[n]:e.setAttribute(n,a[n])}e.append(...k.flat().filter(x=>x!=null&&x!==false));return e};
+const nz=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const k=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+let SY=null,ST='off',LAST=null,csub='cal',progEx=null,tpls=[],W=null,foodFill=()=>{},go=0,sub='lib',fg=null,nDays=3,homeOnly=false,prof={sex:'m',act:1,age:'',h:'',w:'',goal:'maint',ex:[],sw:{}},nd=0,sug=[],eq=[],calSel,lang,data={},tab='cal',cur=new Date(),sel=null,mode='day',gf='all',q='';
+try{data=JSON.parse(localStorage.getItem('gl_d'))||{};lang=localStorage.getItem('gl_l');eq=JSON.parse(localStorage.getItem('gl_eq'))||[];Object.assign(prof,JSON.parse(localStorage.getItem('gl_p'))||{});tpls=JSON.parse(localStorage.getItem('gl_t'))||[]}catch(e){}
+lang=lang||(navigator.language.startsWith('ro')?'ro':'en');
+const sv=ns=>{clearTimeout(sv.t);sv.t=setTimeout(autoSnap,5000);if(!ns&&SY){clearTimeout(SY.tm);SY.tm=setTimeout(doSync,4000)}try{localStorage.setItem('gl_d',JSON.stringify(data));localStorage.setItem('gl_l',lang);localStorage.setItem('gl_eq',JSON.stringify(eq));localStorage.setItem('gl_p',JSON.stringify(prof));localStorage.setItem('gl_t',JSON.stringify(tpls))}catch(e){}};
+const t=x=>T[lang][x];
+
+const IMG=`22,54|M28 56H62L78 52V74M32 56V32|M14 60H70M18 32H46M18 24V40M46 24V40||M28 56H62L78 52V74M32 56V48|M14 60H70M18 48H46M18 40V56M46 40V56
+33,32|M56 58L38 38M56 58L72 56V74M38 38L58 22|M30 46L50 66M50 66H68M54 15L65 27||M56 58L38 38M56 58L72 56V74M38 38L46 34|M30 46L50 66M50 66H68M42 27L53 39
+21,55|M28 56H62L78 52V74M32 56L38 36|M14 60H70M33 34H43||M28 56H62L78 52V74M32 56L40 47|M14 60H70M35 47H45
+36,18|M36 24V54H58V76M36 34H62|M24 22V70M62 28V42M26 58H50||M36 24V54H58V76M36 34H46|M24 22V70M46 28V42M26 58H50
+48,14|M50 22V48M50 48L44 76M50 48L56 76M50 28L40 40M50 28L60 40|M10 6H40M60 6H90M40 6L40 40M60 6L60 40||M50 22V48M50 48L44 76M50 48L56 76M50 28L24 22M50 28L76 22|M10 6H40M60 6H90M12 6L24 22M88 6L76 22
+76,43|M10 72L68 46M68 46V72|M62 73H76|76,57|M10 72L68 60M68 60V72|
+62,30|M40 44L60 30M40 44L46 60L42 76M60 30L56 62|M40 63H72M42 55V71M70 55V71|47,19|M44 46L46 26M44 46L44 62L44 76M46 26L46 56|M30 57H62M32 49V65M60 49V65
+50,19|M36 8L44 30M64 8L56 30M50 26V54M50 54L46 74M50 54L54 74|M24 8H76|50,8|M36 8L44 18M64 8L56 18M50 14V42M50 42L46 62M50 42L54 62|
+50,16|M50 23V54H64V76M50 28L46 17L42 6|M42 0V6M30 6H54||M50 23V54H64V76M50 28L58 36L42 32|M42 0V32M30 32H54
+72,36|M36 44L64 38M36 44L42 60L38 76M64 38L60 60|M44 61H76M46 53V69M74 53V69||M36 44L64 38M36 44L42 60L38 76M64 38L54 50|M38 50H70M40 42V58M68 42V58
+32,28|M34 62L32 36M34 62H64M32 38L48 46L62 46|M84 46H62M68 52V72|28,28|M34 62L28 36M34 62H64M28 38L38 50L46 46|M84 46H46M68 52V72
+22,36|M62 42L32 36M62 42L66 62L62 76M34 38V60M40 38L46 58|M22 62H46M41 60H51||M62 42L32 36M62 42L66 62L62 76M34 38V60M40 38L58 42|M22 62H46M53 42H63
+48,18|M48 46L48 26M48 46H49L48 76|M32 26H64M34 18V34M62 18V34|47,18|M40 52L46 26M40 52H58L56 76|M30 26H66M32 18V34M64 18V34
+10,38|M30 60L14 44M30 60L44 46L54 52|M8 52L30 70M48 44L62 58||M30 60L14 44M30 60L48 52L64 38|M8 52L30 70M58 30L74 44
+47,16|M44 44L46 24M44 44L44 76M46 24L46 54|M32 55H62M34 48V62M60 48V62|73,32|M40 42L66 34M40 42L42 76M66 34L62 56|M46 57H78M48 50V64M76 50V64
+48,14|M48 22V46M48 46L52 60V76M48 46L44 66L40 74M48 26V44|M43 45H53|48,18|M48 26V54M48 54L64 58V76M48 54L34 70L24 74M48 30V52|M43 53H53
+34,16|M34 22V52H56L58 74|M26 20V58M28 58H54M54 68L63 74||M34 22V52H56L78 46|M26 20V58M28 58H54M74 40L82 52
+7,49|M12 52H50L70 52L84 52|M10 58H72M80 46L84 58||M12 52H50L70 52L62 34|M10 58H72M54 28L66 38
+50,14|M50 22V50L48 70L52 74M50 50L52 70|M34 22H66M34 22V76M66 22V76|50,8|M50 16V44L49 64L56 68M50 44L52 64|
+12,48|M18 50H44L66 62V74|M8 54H28V76M34 54H54M36 48V60M52 48V60||M18 50H50L66 50V74|M8 54H28V76M40 44H60M42 38V50M58 38V50
+50,14|M50 22V48M50 48L44 76M50 48L56 76M50 26L41 30L40 20M50 26L59 30L60 20|M26 20H74M28 14V26M72 14V26||M50 22V48M50 48L44 76M50 48L56 76M50 26L40 16L38 6M50 26L60 16L62 6|M26 6H74M28 0V12M72 0V12
+44,15|M44 24V54H62V76M44 28L34 30L36 20M44 28L56 30L54 20|M31 20H41M49 20H59M36 58H64M36 22V58||M44 24V54H62V76M44 28L34 18L38 6M44 28L56 18L52 6|M33 6H43M47 6H57M36 58H64M36 22V58
+50,14|M50 22V48M50 48L44 76M50 48L56 76M50 26L44 50M50 26L56 50|M42 44V56M58 44V56||M50 22V48M50 48L44 76M50 48L56 76M50 26L20 26M50 26L80 26|M18 20V32M82 20V32
+50,14|M50 22V48M50 48L44 76M50 48L56 76M50 28L64 28L76 22|M92 22H76M90 8V32||M50 22V48M50 48L44 76M50 48L56 76M50 28L62 28L44 22|M92 22H46M90 8V32
+73,36|M36 44L64 38M36 44L42 60L38 76M64 38L64 58|M59 58H69||M36 44L64 38M36 44L42 60L38 76M64 38L66 18|M60 16H72
+50,16|M50 24V48M50 48L44 76M50 48L56 76M50 26L42 52M50 26L58 52|M37 52H47M53 52H63|50,12|M50 20V48M50 48L44 76M50 48L56 76M50 22L42 46M50 22L58 46|M37 46H47M53 46H63
+50,14|M50 22V48M50 48L44 76M50 48L56 76M50 26L52 44L54 62|M48 62H60||M50 22V48M50 48L44 76M50 48L56 76M50 26L52 44L66 34|M60 34H72
+50,14|M50 22V48M50 48L44 76M50 48L56 76M50 26L52 44L54 62|M54 56V68||M50 22V48M50 48L44 76M50 48L56 76M50 26L52 44L62 30|M62 22V36
+50,14|M50 22V48M50 48L44 76M50 48L56 76M50 28L58 40V34|M60 2V34M54 34H68||M50 22V48M50 48L44 76M50 48L56 76M50 28L58 40V56|M60 2V56M54 56H68
+21,55|M28 56H62L78 52V74M32 56L32 38L32 20|M14 60H70M27 20H37||M28 56H62L78 52V74M32 56L32 38L18 36|M14 60H70M13 36H23
+50,16|M50 24V52M50 52L46 64L54 70M50 26L44 36L42 46|M30 46H48M52 46H70M32 46V76M68 46V76|50,28|M50 38V64M50 64L46 74L54 78M50 40L38 44L42 46|
+30,16|M30 22V52H50V74M30 28L56 50|M34 34L58 52M24 56H44M50 50H62||M30 22V52H50V74M30 28L44 26|M34 34L58 52M24 56H44M38 26H50
+76,46|M10 72L66 52M66 52V72H80|M62 73H84||M10 68L66 52M66 52V72H80|
+15,64|M22 66L58 68L72 50L82 70|M10 72H90|29,48|M36 54L58 68L72 50L82 70|
+50,16|M42 6L48 28M58 6L52 28M50 24V50L50 78|M30 6H70||M42 6L48 28M58 6L52 28M50 24V50L80 50|
+32,30|M48 62L36 38M48 62L72 50M72 50L80 62M38 42L56 44|M56 40H66V50H56Z||M48 62L36 38M48 62L72 50M72 50L80 62M38 42L22 46|M12 42H22V52H12Z
+36,30|M46 56L40 36M46 56L48 74H70|M30 2L38 38|26,48|M46 56L32 48M46 56L48 74H70|M30 2L32 46
+56,22|M70 72L66 46L58 30L46 68|M40 68H52|20,54|M70 72L62 50L26 58L18 70|M12 70H24`.split('\n');
+const RQ=`barbell,bench|dumbbell,bench|dumbbell,bench|machine|cable|-|barbell|pullbar|cable|barbell|cable|dumbbell,bench|barbell|machine|barbell|dumbbell|machine|machine|machine|barbell,bench|barbell|dumbbell|dumbbell|cable|dumbbell|dumbbell|barbell|dumbbell|cable|barbell,bench|dipbars|barbell,bench|-|-|pullbar|-|cable|wheel`.split('|');
+const EQ=['dumbbell','barbell','bench','pullbar','dipbars','wheel','cable','machine'];
+const GC={chest:'#E5484D',back:'#3B82F6',legs:'#16A37A',shoulders:'#F59E0B',arms:'#A855F7',core:'#14B8A6'};
+const an=(a,x,y)=>!y?'':`<animate attributeName="${a}" values="${x};${y};${x}" dur="2.4s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/>`;
+const th=(id,big)=>{const[hd,b,e,hd2,b2,e2]=IMG[id].split('|'),[x,y]=hd.split(','),[x2,y2]=(hd2||',').split(',');const o=h('span',{class:'th'+(big?' big':'')});o.innerHTML=`<svg viewBox="0 0 100 80" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" aria-hidden="true"><path d="M4 77H96" stroke="var(--line)"/><path d="${b}" stroke="var(--ink)">${an('d',b,b2)}</path><circle cx="${x}" cy="${y}" r="6" fill="var(--ink)" stroke="none">${an('cx',x,x2)}${an('cy',y,y2)}</circle><path d="${e}" stroke="var(--acc)">${an('d',e,e2)}</path></svg>`;if(!big)o.onclick=ev=>{ev.stopPropagation();showBig(id)};return o};
+function showBig(id){const e=L[id],b=$('#big');b.hidden=false;b.replaceChildren(h('div',{class:'panel in'},h('div',{class:'ph'},h('h2',{},e[lang]),h('button',{class:'x',onclick:()=>{b.hidden=true},'aria-label':t('close')},'×')),th(id,1),h('p',{class:'empty'},t(e.g)+', '+t(e.e))))}
+const addToday=id=>{const key=k(new Date());(data[key]=data[key]||[]).push({id,n:3,r:10,w:0});sv();openSheet(key)};
+const FD=`oat|Oats (dry)|Ovăz (uscat)|370|13|60|7
+milk|Milk 1.5%|Lapte 1,5%|47|3.4|4.8|1.5
+ban|Banana|Banană|89|1.1|23|0.3
+pb|Peanut butter|Unt de arahide|590|25|20|50
+egg|Eggs|Ouă|143|12.6|0.7|9.5
+brd|Whole-grain bread|Pâine integrală|250|10|45|3.5
+sal|Mixed salad|Salată mixtă|20|1.2|3.5|0.2
+oil|Olive oil|Ulei de măsline|884|0|0|100
+yog|Greek yogurt|Iaurt grecesc|73|10|4|2
+ber|Berries|Fructe de pădure|50|0.7|12|0.3
+alm|Almonds|Migdale|579|21|22|50
+cot|Cottage cheese|Brânză de vaci|98|11|3.4|4.3
+app|Apple|Măr|52|0.3|14|0.2
+tun|Tuna (canned, in water)|Ton (conservă, în apă)|116|26|0|1
+chk|Chicken breast (cooked)|Piept de pui (gătit)|165|31|0|3.6
+ric|Rice (cooked)|Orez (fiert)|130|2.7|28|0.3
+bro|Broccoli|Broccoli|34|2.8|7|0.4
+tur|Turkey breast (cooked)|Piept de curcan (gătit)|135|29|0|1.5
+pot|Potatoes (boiled)|Cartofi fierți|87|1.9|20|0.1
+sam|Salmon (cooked)|Somon (gătit)|206|22|0|12
+pas|Pasta (cooked)|Paste (fierte)|158|5.8|31|0.9
+bef|Lean beef (cooked)|Vită slabă (gătită)|200|27|0|10
+len|Lentils (cooked)|Linte (fiartă)|116|9|20|0.4
+tof|Tofu|Tofu|76|8|1.9|4.8
+chp|Chickpeas (cooked)|Năut (fiert)|164|9|27|2.6
+soy|Soy milk (unsweetened)|Lapte de soia (neîndulcit)|33|2.8|1.2|1.6
+syg|Soy yogurt (unsweetened)|Iaurt de soia (neîndulcit)|50|5|2|2.5
+qui|Quinoa (cooked)|Quinoa (fiartă)|120|4.4|21|1.9
+rck|Rice cakes|Turte de orez|387|8|82|2.8
+sun|Sunflower seeds|Semințe de floarea-soarelui|584|21|20|51`.split('\n').map(l=>{const[k,en,ro,c,p,cb,f]=l.split('|');return{k,en,ro,c:+c,p:+p,cb:+cb,f:+f}});
+const F=Object.fromEntries(FD.map(x=>[x.k,x]));
+const MP={B:['oat:60,milk:200,ban:100,pb:15','egg:150,brd:80,sal:100,oil:5','yog:200,oat:40,ber:100,alm:15','cot:200,brd:70,app:150,alm:10'],
+S1:['yog:200,ban:100','cot:150,app:150','alm:25,app:150','brd:60,tun:80,sal:50'],
+L:['chk:150,ric:200,bro:150,oil:8','tur:150,pot:300,sal:150,oil:8','sam:130,pas:200,bro:150,oil:5','bef:130,ric:200,sal:150,oil:8','len:250,chk:100,sal:150,oil:8','tun:120,pas:200,sal:150,oil:8'],
+S2:['brd:60,pb:20,ban:100','oat:50,milk:200,ber:80','yog:200,ban:100,alm:10','cot:150,brd:60'],
+D:['chk:150,pot:250,bro:150,oil:8','sam:140,ric:150,sal:150,oil:5','egg:180,brd:80,sal:200,oil:5','tur:150,pas:150,bro:150,oil:8','bef:130,pot:250,sal:150,oil:8','len:250,egg:100,sal:150,oil:5'],
+N:['cot:200,alm:15','yog:250,ber:100,alm:10']};
+const SH={bulk:{B:.22,S1:.1,L:.28,S2:.1,D:.22,N:.08},maint:{B:.25,S1:.1,L:.3,S2:.1,D:.25},cut:{B:.25,S1:.1,L:.3,S2:.1,D:.25}};
+const TM={B:'07:30',S1:'10:30',L:'13:30',S2:'17:00',D:'20:00',N:'22:00'},OF={B:0,S1:1,L:0,S2:2,D:3,N:0};
+const PF=new Set(['egg','cot','yog','chk','tur','sam','bef','tun','len','tof','chp','syg']),GPK={bulk:1.8,maint:1.7,cut:2};
+function scaleMeal(o,T,Pt){
+ const pf=o.filter(([k])=>PF.has(k)),ot=o.filter(([k])=>!PF.has(k));
+ const K=a=>a.reduce((s,[k,g])=>s+F[k].c*g/100,0),P=a=>a.reduce((s,[k,g])=>s+F[k].p*g/100,0);
+ const Kf=K(pf),Ko=K(ot),Pf=P(pf),Po=P(ot),f=T/(Kf+Ko);let fp=f;
+ if(Kf&&Ko){const den=Pf-Kf*Po/Ko;if(den>0)fp=(Pt-T*Po/Ko)/den;fp=Math.min(1.6*f,Math.max(.5*f,fp))}
+ const fo=Ko?Math.max(.3,(T-fp*Kf)/Ko):f;
+ return o.map(([k,g,k0])=>[k,Math.max(5,Math.round(g*(PF.has(k)?fp:fo)/5)*5),k0])}
+const TAG={milk:'dairy',yog:'dairy',cot:'dairy',egg:'egg',chk:'meat',tur:'meat',bef:'meat',sam:'fish',tun:'fish',oat:'gluten',brd:'gluten',pas:'gluten',pb:'nuts',alm:'nuts'};
+const ROLE={chk:'P',tur:'P',bef:'P',sam:'P',tun:'P',tof:'P',len:'P',chp:'P',egg:'P',ric:'C',pot:'C',pas:'C',qui:'C',yog:'D',cot:'D',syg:'D',ban:'F',app:'F',ber:'F',alm:'N',pb:'N',sun:'N',bro:'V',sal:'V',brd:'B',rck:'B',oat:'B',milk:'M',soy:'M',oil:'O'};
+const SUB={milk:['soy'],yog:['syg','tof'],cot:['tof','syg'],egg:['tof','chp'],chk:['tur','tof','chp','len'],tur:['chk','tof','chp','len'],bef:['chk','tur','tof','len','chp'],sam:['chk','tur','tof','chp'],tun:['chk','tur','tof','chp'],oat:['ric','qui'],brd:['rck'],pas:['qui','ric','pot'],pb:['sun'],alm:['sun']};
+const blocked=()=>{const b=new Set(prof.ex.flatMap(x=>x=='veg'?['meat','fish']:[x]));return x=>b.has(TAG[x])};
+function prefMeal(o,d,sl){const bl=blocked(),out=[];
+ o.forEach(([k0,g0])=>{g0=+g0;let k=k0;const man=prof.sw[d+'|'+sl+'|'+k0];
+  if(man&&F[man]&&!bl(man))k=man;else if(bl(k0))k=(SUB[k0]||[]).find(c=>!bl(c)&&!o.some(x=>x[0]==c))||null;
+  if(!k)return;const g=Math.min(g0*F[k0].c/F[k].c,g0*3),ex=out.find(x=>x[0]==k);if(ex)ex[1]+=g;else out.push([k,g,k0])});
+ return out}
+function swapPick(sl,k0,cur){
+ const bl=blocked(),b=$('#big'),key=nd+'|'+sl+'|'+k0,done=()=>{b.hidden=true;foodFill()};
+ const alts=Object.keys(ROLE).filter(x=>ROLE[x]==ROLE[k0]&&x!=cur&&!bl(x));
+ b.hidden=false;b.replaceChildren(h('div',{class:'panel in'},h('div',{class:'ph'},h('h2',{},t('swapfor')+' '+F[cur][lang]),h('button',{class:'x',onclick:()=>{b.hidden=true},'aria-label':t('close')},'×')),
+  ...alts.map(x=>h('button',{class:'row',style:'margin-top:8px',onclick:()=>{prof.sw[key]=x;sv();done()}},h('span',{},h('b',{},F[x][lang])),h('i',{},'⇄'))),
+  prof.sw[key]?h('button',{class:'btn',onclick:()=>{delete prof.sw[key];sv();done()}},t('reset')):null))}
+function mkPlan(kc,goal,w){return[...Array(7)].map((_,d)=>Object.entries(SH[goal]).map(([sl,sh])=>{
+ const o=prefMeal(MP[sl][(d+OF[sl])%MP[sl].length].split(',').map(x=>x.split(':')),d,sl),it=scaleMeal(o,kc*sh,w*GPK[goal]*sh),m={sl,time:TM[sl],it,c:0,p:0,cb:0,f:0};
+ it.forEach(([k,q])=>{const x=F[k];m.c+=x.c*q/100;m.p+=x.p*q/100;m.cb+=x.cb*q/100;m.f+=x.f*q/100});
+ return m}))}
+function calc(){const a=+prof.age,hh=+prof.h,w=+prof.w;
+ if(!a||!hh||!w||hh<120||hh>230||w<35||w>250||a>90)return{e:'need'};if(a<18)return{e:'adult'};
+ const bmr=10*w+6.25*hh-5*a+(prof.sex=='m'?5:-161),td=bmr*[1.375,1.55,1.725][prof.act],bmi=w/(hh/100)**2,r=x=>Math.round(x/50)*50;
+ return{td:r(td),w,cutOK:bmi>=19,kc:{bulk:r(td+350),maint:r(td),cut:r(Math.max(td-450,prof.sex=='m'?1500:1200))}}}
+function foodView(v){
+ const plan=h('div'),cap=x=>x.charAt(0).toUpperCase()+x.slice(1);
+ const chip=(txt,on,fn)=>h('button',{class:'chip'+(on?' on':''),'aria-pressed':String(on),onclick:fn},txt);
+ const num=(lab,key,ph)=>h('label',{class:'fld'},h('span',{},lab),h('input',{type:'number',inputmode:'decimal',placeholder:ph,value:prof[key],oninput:e=>{prof[key]=e.target.value;sv();fill()}}));
+ v.replaceChildren(h('h2',{},t('ptitle')),h('div',{class:'callout'},h('b',{},t('a18'))),h('p',{class:'empty'},t('pdesc')),
+  h('div',{class:'eqs'},chip(t('male'),prof.sex=='m',()=>{prof.sex='m';sv();foodView(v)}),chip(t('female'),prof.sex=='f',()=>{prof.sex='f';sv();foodView(v)})),
+  h('div',{class:'flds'},num(t('age'),'age','25'),num(t('height'),'h','175'),num(t('weight'),'w','70')),
+  h('b',{},t('act')),
+  h('div',{class:'eqs'},...[0,1,2].map(i=>chip(t('a'+i),prof.act==i,()=>{prof.act=i;sv();foodView(v)}))),h('h3',{},t('prefh')),h('div',{class:'group'},...[['veg','pv'],['dairy','pd'],['gluten','pg'],['egg','pe'],['fish','pf'],['nuts','pn']].map(([x,l])=>sw(t(l),prof.ex.includes(x),()=>{prof.ex=prof.ex.includes(x)?prof.ex.filter(y=>y!=x):[...prof.ex,x];sv();foodFill()}))),h('p',{class:'empty'},t('allg')),plan,h('div',{class:'callout'},h('b',{},t('rest_t')),h('p',{},t('rest_x'))));
+ function fill(){
+  const c=calc();
+  if(c.e){plan.replaceChildren(h('p',{class:'empty'},t(c.e)));return}
+  if(prof.goal=='cut'&&!c.cutOK)prof.goal='maint';
+  const kc=c.kc[prof.goal],pl=mkPlan(kc,prof.goal,c.w),day=pl[nd],tot=day.reduce((a,m)=>({c:a.c+m.c,p:a.p+m.p,cb:a.cb+m.cb,f:a.f+m.f}),{c:0,p:0,cb:0,f:0});
+  const st=(a,b)=>h('div',{class:'stat'},h('b',{},Math.round(a)),h('small',{},b));
+  plan.replaceChildren(
+   h('h2',{style:'margin-top:22px'},t('goalh')),
+   h('div',{class:'eqs'},...[['bulk','goalbulk'],['maint','goalmaint'],['cut','goalcut']].map(([g,k])=>{const off=g=='cut'&&!c.cutOK,b=chip(t(k)+' ('+c.kc[g]+' kcal)',prof.goal==g,()=>{if(off)return;prof.goal=g;sv();fill()});if(off)b.classList.add('off');return b})),
+   h('p',{class:'empty'},t('burn').replace('{a}',c.td).replace('{b}',kc)),
+   ...(c.cutOK?[]:[h('p',{class:'empty'},t('lowbmi'))]),
+   h('div',{class:'chips'},...pl.map((_,i)=>chip(cap(new Date(2024,0,1+i).toLocaleDateString(lang,{weekday:'short'})),nd==i,()=>{nd=i;fill()}))),
+   h('div',{class:'stats'},st(tot.c,'kcal'),st(tot.p,t('prot')+' g'),st(tot.cb,t('carb')+' g')),
+   ...day.map(m=>h('div',{class:'card meal'},h('div',{class:'mt'},h('b',{class:'tm'},m.time),h('span',{},t('m_'+m.sl)),h('small',{},Math.round(m.c)+' kcal')),
+    h('ul',{},...m.it.map(([k,q,k0])=>h('li',{},h('span',{},F[k][lang]),h('b',{},q+' g'),h('button',{class:'x','aria-label':t('swap'),onclick:()=>swapPick(m.sl,k0,k)},'⇄')))),
+    h('small',{class:'mm'},t('prot')+' '+Math.round(m.p)+' g, '+t('carb')+' '+Math.round(m.cb)+' g, '+t('fat')+' '+Math.round(m.f)+' g'))),
+   h('p',{class:'empty'},t('water').replace('X',(c.w*.035).toFixed(1))),h('p',{class:'empty'},t('cooked')),h('p',{class:'empty'},t('disc')));
+ }
+ foodFill=fill;fill();
+}
+const POOL={chest:[0,1,5,2,4,3],back:[7,9,6,11,8,10],legs:[12,14,19,15,13,16,17,18],shoulders:[20,22,21,24,23,25],bi:[26,27,31],tri:[28,30,29],core:[34,32,37,33,35,36]};
+const PRI={chest:POOL.chest,back:POOL.back,legs:POOL.legs,shoulders:POOL.shoulders,arms:[26,28,27,30,29,31],core:POOL.core};
+const CMP=new Set([0,1,5,6,7,8,9,10,11,12,13,14,15,19,20,21,30,34]);
+const okEx=id=>!homeOnly||RQ[id].split(',').every(r=>r=='-'||eq.includes(r));
+const repStr=(id,D)=>id==32?'45 s':id>32?'12-15':CMP.has(id)?(D?(D<=3?'6-8':D==4?'6-10':'8-12'):'6-10'):(D?(D<=3?'10-12':'12-15'):'10-15');
+const repNum=x=>x.endsWith(' s')?parseInt(x):Math.round(x.split('-').map(Number).reduce((p,c)=>p+c)/x.split('-').length);
+const TG={chest:12,back:14,legs:14,shoulders:12,bi:8,tri:8,core:8};
+const SP={2:['full','full'],3:['full','full','full'],4:['upper','lower','upper','lower'],5:['push','pull','legs','upper','lower'],6:['push','pull','legs','push','pull','legs']};
+const SG={full:[['chest',1],['back',1],['legs',2],['shoulders',1],['arm',1],['core',1]],push:[['chest',2],['shoulders',2],['tri',2]],pull:[['back',3],['bi',2],['core',1]],legs:[['legs',4],['core',1]],upper:[['chest',2],['back',2],['shoulders',1],['bi',1],['tri',1]],lower:[['legs',3],['core',1]]};
+function mkWeek(D,fc){
+ const fm=g=>fc&&(fc==g||(fc=='arms'&&(g=='bi'||g=='tri'))),seen={},wk={};
+ const ss=SP[D].map((type,si)=>{const ex=[];SG[type].forEach(([g0,n])=>{const g=g0=='arm'?(si%2?'tri':'bi'):g0,pool=POOL[g].filter(okEx);if(!pool.length)return;const c=seen[g]||0;seen[g]=c+1;
+  for(let j=0;j<Math.min(pool.length,n+(fm(g)?1:0));j++){const id=pool[(j+(type=='full'?c:2*c))%pool.length];if(!ex.some(e=>e.id==id)){ex.push({id,g});wk[g]=(wk[g]||0)+1}}});return{type,ex}});
+ ss.forEach(x=>x.ex.forEach(e=>{e.n=Math.min(5,Math.max(2,Math.round((TG[e.g]+(fm(e.g)?4:0))/wk[e.g])));e.rep=repStr(e.id,D)}));
+ return ss}
+const addEx=(id,n,r)=>{const key=k(new Date());(data[key]=data[key]||[]).push({id,n,r,w:0});sv();openSheet(key)};
+const sw=(lab,on,fn)=>{const i=h('i',{class:'tg'+(on?' on':'')});return h('button',{class:'srow',role:'switch','aria-checked':String(on),onclick:()=>{i.classList.toggle('on');setTimeout(fn,220)}},h('span',{},lab),i)};
+function libView(v){
+ const seg=(it,cur,fn)=>h('div',{class:'seg'},...it.map(([x,l])=>h('button',{class:cur==x?'on':'','aria-pressed':String(cur==x),onclick:()=>fn(x)},l)));
+ const gch=none=>h('div',{class:'chips'},...(none?['']:[]).concat(Object.keys(GC)).map(g=>h('button',{class:'chip'+((fg||'')==g?' on':''),onclick:()=>{fg=g||null;libView(v)}},g?t(g):t('pnone'))));
+ const only=h('div',{class:'group'},sw(t('ponly'),homeOnly,()=>{homeOnly=!homeOnly;libView(v)}));
+ const row=(id,txt,add)=>h('div',{class:'it'},th(id),h('span',{style:'flex:1'},h('b',{},L[id][lang]),h('small',{style:'display:block;color:var(--mute)'},txt)),add);
+ const plus=(id,n,rep)=>h('button',{class:'x',style:'color:var(--acc);font-size:26px',onclick:()=>addEx(id,n,repNum(rep)),'aria-label':t('add')},'+');
+ let body;
+ if(sub=='lib')body=[h('p',{class:'empty'},t('hint')),listUI(id=>addToday(id))];
+ else if(sub=='focus'){
+  body=[h('h3',{style:'margin-top:4px'},t('fh')),h('p',{class:'empty',style:'margin-top:0'},t('fd')),gch(false),only];
+  if(fg){const pool=PRI[fg].filter(okEx);
+   if(!pool.length)body.push(h('p',{class:'empty'},t('noeq')));
+   else{const top=pool.slice(0,3).map((id,i)=>({id,n:i<2?3:2,rep:repStr(id,0)}));
+    body.push(h('div',{class:'card'},...top.map(e=>row(e.id,e.n+' × '+e.rep,plus(e.id,e.n,e.rep)))),h('p',{class:'empty'},t('ftip').replace('{a}',top.reduce((p,e)=>p+e.n,0)*2)));
+    if(pool.length>3)body.push(h('h3',{},t('alt')),h('div',{class:'card'},...pool.slice(3).map(id=>row(id,'3 × '+repStr(id,0),plus(id,3,repStr(id,0))))))}}
+ }else if(sub=='tpl'){
+  body=[h('p',{class:'empty'},t('tinfo'))];
+  if(!tpls.length)body.push(h('p',{class:'empty'},t('tnone')));
+  tpls.forEach((x,i)=>body.push(h('div',{class:'card'},h('div',{class:'ch'},h('h3',{style:'margin:0'},x.name),h('button',{class:'x',onclick:()=>{tpls.splice(i,1);sv();libView(v)},'aria-label':t('del')},'×')),
+   ...x.ex.map(e=>row(e.id,e.n+' × '+e.r+(e.w?' @ '+e.w+' kg':''),null)),
+   h('button',{class:'btn',onclick:()=>startWk(x.ex.map(e=>({...e})),x.name)},t('wstart')),
+   h('button',{class:'ghost',onclick:()=>{const key=k(new Date());x.ex.forEach(e=>(data[key]=data[key]||[]).push({...e}));sv();openSheet(key)}},t('addsess')))));
+ }else{
+  body=[h('h3',{style:'margin-top:4px'},t('pdays')),seg([2,3,4,5,6].map(d=>[d,String(d)]),nDays,x=>{nDays=+x;libView(v)}),h('b',{},t('pfoc')),gch(true),only,h('p',{class:'empty'},t('pinfo').replace('{a}',nDays))];
+  mkWeek(nDays,fg).forEach((x,i)=>body.push(h('div',{class:'card'},h('h3',{style:'margin:0'},t('day')+' '+(i+1)+': '+t('s_'+x.type)),
+   ...(x.ex.length?[...x.ex.map(e=>row(e.id,e.n+' × '+e.rep,null)),h('button',{class:'btn',onclick:()=>{const key=k(new Date());x.ex.forEach(e=>(data[key]=data[key]||[]).push({id:e.id,n:e.n,r:repNum(e.rep),w:0}));sv();openSheet(key)}},t('addsess')),h('button',{class:'ghost',onclick:()=>saveTpl(t('s_'+x.type),x.ex.map(e=>({id:e.id,n:e.n,r:repNum(e.rep),w:0})))},t('tsave'))]:[h('p',{class:'empty'},t('noeq'))]))));
+  body.push(h('p',{class:'empty'},t('pnote')));
+ }
+ v.replaceChildren(h('h2',{},t('lib')),seg([['lib',t('subl')],['focus',t('subf')],['plan',t('subp')],['tpl',t('subt')]],sub,x=>{sub=x;libView(v)}),...body);
+}
+const calSeg=()=>h('div',{class:'seg'},...[['cal',t('cal')],['prog',t('progress')]].map(([x,l])=>h('button',{class:csub==x?'on':'','aria-pressed':String(csub==x),onclick:()=>{csub=x;render()}},l)));
+const hx=(html,c)=>{const e=h('div',{class:c||''});e.innerHTML=html;return e};
+function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1800)}
+function saveTpl(name,ex){tpls.push({name:(name||'').trim()||t('tpl')+' '+(tpls.length+1),ex:ex.map(e=>({id:e.id,n:e.n,r:e.r,w:e.w||0}))});sv();toast(t('tsaved'))}
+const fmt=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
+const lastOf=id=>{for(const d of Object.keys(data).sort().reverse()){const e=data[d].find(x=>x.id==id&&x.w>0)||data[d].find(x=>x.id==id);if(e)return e}return null};
+const ac=()=>{try{W.ac=W.ac||new(window.AudioContext||window.webkitAudioContext)();W.ac.resume&&W.ac.resume()}catch(e){}};
+function beep(){try{const a=W.ac,o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.15;o.start();o.stop(a.currentTime+.4)}catch(e){}try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
+function startWk(list,name,repl){
+ list.forEach(e=>{const l=lastOf(e.id);if(!(e.w>0)&&l&&l.w>0)e.w=l.w;e.w=e.w||0});
+ W={name,ex:list,i:0,done:0,rest:0,tot:90,len:90,res:[],repl};ac();
+ W.tm=setInterval(()=>{if(W&&W.rest>0){W.rest--;const r=$('#rt');if(r)r.textContent=fmt(W.rest);const b=$('#rb');if(b)b.style.width=Math.round(100*W.rest/W.tot)+'%';if(W.rest==0){beep();drawWk()}}},1000);
+ drawWk()}
+function endWk(early){
+ if(!W)return;clearInterval(W.tm);
+ const e=W.ex[W.i];if(early&&e&&W.done>0)W.res.push({id:e.id,n:W.done,r:e.r,w:e.w});
+ const key=k(new Date()),saved=W.res.length>0;
+ if(saved){const a=data[key]=data[key]||[];if(W.repl)W.res.forEach(r=>{const o=W.repl.find(x=>x.id==r.id&&a.includes(x));if(o)a.splice(a.indexOf(o),1)});a.push(...W.res);sv();toast(t('wsaved'))}
+ W=null;$('#wk').hidden=true;saved?openSheet(key):render()}
+function drawWk(){
+ const w=$('#wk');if(!W){w.hidden=true;return}
+ w.hidden=false;
+ const e=W.ex[W.i],fin=W.done>=e.n,lastEx=W.i==W.ex.length-1;
+ const stp=(lab,key,step,min,max,u)=>{const set=d=>{e[key]=Math.max(min,Math.min(max,+(e[key]+d).toFixed(1)));drawWk()};return h('div',{class:'stp'},h('span',{},lab),h('div',{},h('button',{class:'x',onclick:()=>set(-step),'aria-label':'-'},'−'),h('b',{},e[key]+u),h('button',{class:'x',onclick:()=>set(step),'aria-label':'+'},'+')))};
+ const items=[
+  h('div',{class:'ph'},h('h2',{style:'margin:0;font-size:20px'},W.name),h('button',{class:'x',onclick:()=>endWk(true),'aria-label':t('close')},'×')),
+  h('div',{class:'bar'},h('i',{style:'width:'+Math.round(100*(W.i+W.done/e.n)/W.ex.length)+'%'})),
+  h('small',{class:'empty'},t('wex')+' '+(W.i+1)+'/'+W.ex.length),
+  th(e.id,1),h('h2',{style:'text-align:center'},L[e.id][lang])];
+ if(W.rest>0)items.push(h('div',{class:'card'},h('small',{class:'empty'},t('wrest')),h('div',{class:'rt',id:'rt'},fmt(W.rest)),h('div',{class:'bar'},h('i',{id:'rb',style:'width:'+Math.round(100*W.rest/W.tot)+'%'})),
+  h('div',{class:'flds'},h('button',{class:'btn s',style:'flex:1',onclick:()=>{W.rest+=15;W.tot+=15;drawWk()}},'+15 s'),h('button',{class:'btn s',style:'flex:1',onclick:()=>{W.rest=0;drawWk()}},t('wskip')))));
+ if(!fin){items.push(h('p',{class:'empty',style:'text-align:center'},t('wset')+' '+(W.done+1)+' / '+e.n),stp(t('rL'),'r',1,1,60,''),stp(t('wL'),'w',2.5,0,300,' kg'),
+  h('button',{class:'btn',onclick:()=>{ac();W.done++;if(W.done>=e.n&&lastEx)W.rest=0;else{W.rest=W.len;W.tot=W.len}drawWk()}},t('wdone')))}
+ else items.push(h('button',{class:'btn',onclick:()=>{W.res.push({id:e.id,n:W.done,r:e.r,w:e.w});W.i++;W.done=0;W.rest=0;if(W.i>=W.ex.length)endWk(false);else drawWk()}},lastEx?t('wfin'):t('wnext')));
+ items.push(h('div',{class:'seg',style:'margin-top:18px'},...[60,90,120,180].map(x=>h('button',{class:W.len==x?'on':'',onclick:()=>{W.len=x;drawWk()}},x+' s'))),h('small',{class:'empty'},t('wlen')));
+ w.replaceChildren(...items)}
+function progView(v){
+ const days=Object.keys(data).filter(d=>data[d].length).sort(),H={};
+ days.forEach(d=>data[d].forEach(e=>(H[e.id]=H[e.id]||[]).push({d,n:e.n,r:e.r,w:e.w})));
+ if(!days.length){v.replaceChildren(calSeg(),h('p',{class:'empty'},t('pnoh')));return}
+ const wkS=d=>{const x=new Date(d+'T12:00');x.setDate(x.getDate()-(x.getDay()+6)%7);return k(x)};
+ const now=k(new Date()),wn=wkS(now),bw={};let ton=0;
+ days.forEach(d=>{const o=bw[wkS(d)]=bw[wkS(d)]||{days:0,sets:0,g:{}};o.days++;data[d].forEach(e=>{o.sets+=e.n;const g=L[e.id].g;o.g[g]=(o.g[g]||0)+e.n;if(d.slice(0,7)==now.slice(0,7))ton+=e.n*e.r*(e.w||0)})});
+ let st=0;const c=new Date(wn+'T12:00');if(!(bw[wn]&&bw[wn].days>=2))c.setDate(c.getDate()-7);
+ while(bw[k(c)]&&bw[k(c)].days>=2){st++;c.setDate(c.getDate()-7)}
+ const stat=(a,b)=>h('div',{class:'stat'},h('b',{},a),h('small',{},b)),fd=d=>new Date(d+'T12:00').toLocaleDateString(lang,{day:'numeric',month:'short'});
+ const wk8=[...Array(8)].map((_,i)=>{const d=new Date(wn+'T12:00');d.setDate(d.getDate()-7*(7-i));return k(d)}),vals=wk8.map(x=>(bw[x]||{sets:0}).sets),mx=Math.max(1,...vals);
+ const bars=vals.map((n,i)=>{const hh=Math.round(n/mx*80);return `<rect x="${12+i*38}" y="${100-hh}" width="26" height="${hh}" rx="6" fill="var(--acc)" opacity="${i==7?1:.4}"/><text x="${25+i*38}" y="${96-hh}" text-anchor="middle" font-size="11" fill="var(--ink)">${n||''}</text><text x="${25+i*38}" y="116" text-anchor="middle" font-size="9" fill="var(--mute)">${new Date(wk8[i]+'T12:00').toLocaleDateString(lang,{day:'numeric',month:'numeric'})}</text>`}).join('');
+ const gm=Math.max(8,...Object.keys(GC).map(g=>(bw[wn]&&bw[wn].g[g])||0));
+ const ids=Object.keys(H).map(Number).sort((a,b)=>H[b].length-H[a].length),cur=H[progEx]?progEx:ids[0],hs=H[cur],kgm=hs.some(e=>e.w>0);
+ const byD={};hs.forEach(e=>{const m=kgm?e.w:e.r;byD[e.d]=Math.max(byD[e.d]||0,m)});
+ const pts=Object.keys(byD).sort().map(d=>({d,v:byD[d]}));
+ let chart;
+ if(pts.length<2)chart=h('p',{class:'empty'},t('pmore'));
+ else{const lo=Math.min(...pts.map(p=>p.v)),hi=Math.max(...pts.map(p=>p.v)),pad=(hi-lo)||1,y0=lo-pad*.15,y1=hi+pad*.15,X=i=>38+i*(272/(pts.length-1)),Y=v=>120-(v-y0)/(y1-y0)*100;
+  chart=hx(`<svg class="cht" viewBox="0 0 320 150" role="img"><path d="M38 20V120H310" fill="none" stroke="var(--line)"/><text x="34" y="24" text-anchor="end" font-size="10" fill="var(--mute)">${hi}</text><text x="34" y="120" text-anchor="end" font-size="10" fill="var(--mute)">${lo}</text><polyline fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linejoin="round" points="${pts.map((p,i)=>X(i)+','+Y(p.v)).join(' ')}"/>${pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3.5" fill="var(--acc)"/>`).join('')}<text x="38" y="140" font-size="10" fill="var(--mute)">${fd(pts[0].d)}</text><text x="310" y="140" text-anchor="end" font-size="10" fill="var(--mute)">${fd(pts[pts.length-1].d)}</text></svg>`)}
+ const e1=kgm?Math.round(Math.max(...hs.filter(e=>e.w>0).map(e=>e.w*(1+e.r/30)))):0;
+ const prs=ids.map(id=>{const b=H[id].reduce((a,e)=>(e.w>a.w||(e.w==a.w&&e.r>a.r))?e:a,H[id][0]);return{id,b}}).sort((a,b)=>b.b.w-a.b.w||b.b.r-a.b.r).slice(0,8);
+ v.replaceChildren(calSeg(),
+  h('div',{class:'stats',style:'grid-template-columns:repeat(2,1fr)'},stat(days.length,t('pw')),stat(bw[wn]?bw[wn].days:0,t('pwk')),stat(st,t('pst')),stat(Math.round(ton).toLocaleString(lang),t('pvol'))),
+  h('h3',{},t('pc1')),h('div',{class:'card'},hx(`<svg class="cht" viewBox="0 0 320 125" role="img">${bars}</svg>`)),
+  h('h3',{},t('pc2')),h('div',{class:'card'},...Object.keys(GC).map(g=>{const n=(bw[wn]&&bw[wn].g[g])||0;return h('div',{class:'pb'},h('span',{},t(g)),h('div',{},h('i',{style:'width:'+Math.round(n/gm*100)+'%;background:'+GC[g]})),h('b',{},n))})),
+  h('h3',{},t('pc3')),h('div',{class:'card'},h('select',{class:'q','aria-label':t('pc3'),onchange:e=>{progEx=+e.target.value;progView(v)}},...ids.map(id=>h('option',id==cur?{value:id,selected:''}:{value:id},L[id][lang]))),h('small',{class:'empty'},kgm?'kg':t('reps')),chart,e1?h('p',{class:'empty'},t('e1rm')+': '+e1+' kg'):null),
+  h('h3',{},t('pc4')),h('div',{class:'card'},...prs.map(({id,b})=>h('div',{class:'it'},th(id),h('span',{style:'flex:1'},h('b',{},L[id][lang]),h('small',{style:'display:block;color:var(--mute)'},(b.w?b.w+' kg × '+b.r:b.r+' '+t('reps'))+', '+fd(b.d)))))))}
+const num=(x,a,b,d)=>{x=+x;return isFinite(x)?Math.min(b,Math.max(a,x)):d};
+const DRE=/^\d{4}-\d{2}-\d{2}$/;
+const cleanEs=es=>Array.isArray(es)?es.filter(e=>e&&Number.isInteger(+e.id)&&+e.id>=0&&+e.id<L.length).map(e=>({id:+e.id,n:num(e.n,1,10,3),r:num(e.r,1,60,10),w:num(e.w,0,300,0)})):[];
+const cleanTpls=a=>(Array.isArray(a)?a:[]).filter(x=>x&&typeof x.name=='string').map(x=>({name:x.name.slice(0,60),ex:cleanEs(x.ex)})).filter(x=>x.ex.length);
+const PX=['veg','dairy','gluten','egg','fish','nuts'];
+const setObj=()=>({eq,tpls,prof:{sex:prof.sex,act:prof.act,age:prof.age,h:prof.h,w:prof.w,goal:prof.goal,ex:prof.ex,sw:prof.sw}});
+function applySet(v){eq=(v.eq||[]).filter(x=>EQ.includes(x));tpls=cleanTpls(v.tpls);const p=v.prof||{};
+ prof.sex=p.sex=='f'?'f':'m';prof.act=num(p.act,0,2,1);['age','h','w'].forEach(f=>{prof[f]=p[f]==null?'':String(p[f]).slice(0,5)});
+ prof.goal=['bulk','maint','cut'].includes(p.goal)?p.goal:'maint';prof.ex=(p.ex||[]).filter(x=>PX.includes(x));prof.sw=p.sw&&typeof p.sw=='object'?p.sw:{}}
+function mergeIn(o){let ch=0;
+ for(const d in(o.data||{})){if(!DRE.test(d))continue;const r=cleanEs(o.data[d]);if(!r.length)continue;const a=data[d]||[],have=new Set(a.map(e=>JSON.stringify(e)));r.forEach(e=>{if(!have.has(JSON.stringify(e))){a.push(e);ch++}});data[d]=a}
+ cleanTpls(o.tpls).forEach(c=>{if(!tpls.some(y=>JSON.stringify(y)==JSON.stringify(c))){tpls.push(c);ch++}});
+ (o.eq||[]).forEach(x=>{if(EQ.includes(x)&&!eq.includes(x)){eq.push(x);ch++}});
+ const p=o.prof||{};if(!prof.age&&p.age){const keep=prof.sw;applySet({eq,tpls,prof:p});prof.sw=Object.assign({},p.sw&&typeof p.sw=='object'?p.sw:{},keep);ch++}
+ return ch}
+function setSt(s){ST=s;const a=$('#ac');if(a)a.className='lg st-'+s;const e=$('#sst');
+ if(e)e.textContent={ok:t('ac_ok')+(LAST?' '+t('ac_last')+': '+LAST.toLocaleTimeString(lang,{hour:'2-digit',minute:'2-digit'})+'.':''),sync:t('ac_sync'),off:t('ac_off'),err:t('ac_err')}[s]}
+async function initSync(){try{const c=window.claude;if(!c||!c.use)return;const[db,user]=await Promise.all([c.use('db'),c.use('user')]);if(!db||!user)return;const id=await user.id();if(!id)return;SY={db,id};doSync()}catch(e){}}
+async function doSync(){
+ if(!SY||SY.busy)return;SY.busy=true;setSt('sync');
+ try{
+  const col=SY.db.collection('data/users/'+SY.id),snap=await col.get(),rem={};let rs0=null;
+  snap.docs.forEach(d=>{if(d.id=='settings')rs0=d.data();else if(d.id.startsWith('m-'))rem[d.id]=d.data()||{}});
+  const base=JSON.parse(localStorage.getItem('gl_syn')||'{}'),bd=base.days||{},rd={};
+  Object.values(rem).forEach(m=>Object.entries(m.days||{}).forEach(([d,x])=>{if(DRE.test(d)&&x&&cleanEs(x.e).length)rd[d]=x}));
+  const touched=new Set();let pulled=false;
+  new Set([...Object.keys(data),...Object.keys(rd),...Object.keys(bd)]).forEach(d=>{
+   const l=data[d]&&data[d].length?JSON.stringify(data[d]):'',r=rd[d]?JSON.stringify(cleanEs(rd[d].e)):'',b=bd[d]||'';
+   if(l==r){if(l)bd[d]=l;else delete bd[d];return}
+   if(l==b){if(r){data[d]=JSON.parse(r);bd[d]=r}else{delete data[d];delete bd[d]}pulled=true;return}
+   let m=l;if(l&&r&&r!=b){const u=JSON.parse(r);JSON.parse(l).forEach(e=>{if(!u.some(x=>JSON.stringify(x)==JSON.stringify(e)))u.push(e)});m=JSON.stringify(u);data[d]=u;pulled=true}
+   if(m){rd[d]={ts:Date.now(),e:JSON.parse(m)};bd[d]=m}else{delete rd[d];delete bd[d]}
+   touched.add(d.slice(0,7))});
+  for(const mo of touched){const days={};Object.keys(rd).filter(d=>d.startsWith(mo)).forEach(d=>{days[d]=rd[d]});await col.doc('m-'+mo).set({days})}
+  const ls=JSON.stringify(setObj()),rv=rs0&&rs0.v,rs=rv?JSON.stringify(rv):'',bs=base.set||'';
+  if(ls==rs)base.set=ls;
+  else if(rv&&ls==bs){applySet(rv);base.set=JSON.stringify(setObj());pulled=true}
+  else{if(rv&&!bs){mergeIn({tpls:rv.tpls,eq:rv.eq,prof:rv.prof});pulled=true}await col.doc('settings').set({ts:Date.now(),v:setObj()});base.set=JSON.stringify(setObj())}
+  localStorage.setItem('gl_syn',JSON.stringify({days:bd,set:base.set}));
+  if(pulled){sv(1);render()}
+  LAST=new Date();setSt('ok')
+ }catch(e){setSt('err')}
+ SY.busy=false}
+const snapshot=()=>JSON.stringify({app:'GymHub',v:1,exported:new Date().toISOString(),data,tpls,eq,prof:setObj().prof},null,1);
+async function doExport(ta){const json=snapshot();ta.value=json;try{const dl=await window.claude.use('downloads');if(!dl)throw 0;await dl.save({filename:'gymhub-backup-'+k(new Date())+'.json',data:json});try{localStorage.setItem('gl_lbk',k(new Date()))}catch(e){}toast(t('bk_saved'));render()}catch(e){toast(t('bk_manual'))}}
+function doImport(txt){let o;try{o=JSON.parse(txt)}catch(e){}
+ if(!o||o.app!='GymHub'||!o.data||typeof o.data!='object'){toast(t('bk_bad'));return}
+ const n=mergeIn(o);sv();render();toast(t('bk_done')+' ('+n+')')}
+function openAcc(){
+ const snl=h('div'),b=$('#big'),ta=h('textarea',{class:'q',rows:'5',placeholder:t('bk_paste'),'aria-label':t('bk_paste')});
+ const file=h('input',{type:'file',accept:'.json,application/json',onchange:e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{ta.value=String(r.result)};r.readAsText(f)}});
+ b.hidden=false;b.replaceChildren(h('div',{class:'panel in'},h('div',{class:'ph'},h('h2',{},t('acch')),h('button',{class:'x',onclick:()=>{b.hidden=true},'aria-label':t('close')},'×')),
+  h('div',{class:'callout'},h('b',{id:'sst'}),h('p',{},t('ac_note'))),
+  SY?h('button',{class:'btn',onclick:()=>doSync()},t('ac_now')):null,
+  h('h3',{},t('bkh')),h('p',{class:'empty'},t('bk_note')),
+  h('div',{class:'flds'},h('button',{class:'btn s',style:'flex:1',onclick:()=>doExport(ta)},t('bk_exp')),h('button',{class:'btn s',style:'flex:1',onclick:async()=>{if(!ta.value)ta.value=snapshot();try{await navigator.clipboard.writeText(ta.value);try{localStorage.setItem('gl_lbk',k(new Date()))}catch(e){}toast(t('bk_copied'))}catch(e){ta.select();toast(t('bk_manual'))}}},t('bk_copy'))),
+  ta,file,h('button',{class:'btn',onclick:()=>doImport(ta.value)},t('bk_imp')),
+  h('h3',{},t('abkh')),h('p',{class:'empty'},t('abk_note')),snl));
+ setSt(ST);fillSnaps(snl)}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)doSync()});
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('gymhub',1);r.onupgradeneeded=()=>r.result.createObjectStore('snaps');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const idbPut=async(key,v)=>{const d=await idb();return new Promise((res,rej)=>{const tx=d.transaction('snaps','readwrite');tx.objectStore('snaps').put(v,key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})};
+const idbDel=async key=>{const d=await idb();return new Promise((res,rej)=>{const tx=d.transaction('snaps','readwrite');tx.objectStore('snaps').delete(key);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})};
+const idbAll=async()=>{const d=await idb();return new Promise((res,rej)=>{const o={},c=d.transaction('snaps').objectStore('snaps').openCursor();c.onsuccess=e=>{const x=e.target.result;if(x){o[x.key]=x.value;x.continue()}else res(o)};c.onerror=()=>rej(c.error)})};
+async function autoSnap(){try{if(!Object.keys(data).length&&!tpls.length)return;await idbPut(k(new Date()),{ts:Date.now(),days:Object.keys(data).length,json:snapshot()});const o=await idbAll();for(const x of Object.keys(o).filter(y=>DRE.test(y)).sort().reverse().slice(14))await idbDel(x)}catch(e){}}
+async function restoreSnap(key){try{const o=await idbAll(),v=o[key];if(!v)return;const s=JSON.parse(v.json);
+ if(Object.keys(data).length||tpls.length)await idbPut('pre-restore',{ts:Date.now(),days:Object.keys(data).length,json:snapshot()});
+ const nd={};for(const d in(s.data||{}))if(DRE.test(d)){const r=cleanEs(s.data[d]);if(r.length)nd[d]=r}
+ data=nd;applySet({eq:s.eq,tpls:s.tpls,prof:s.prof});sv();render();toast(t('abk_done'));const b=$('#big');if(!b.hidden)openAcc()}catch(e){}}
+async function fillSnaps(box){try{const o=await idbAll(),ks=Object.keys(o).sort().reverse();
+ if(!ks.length){box.replaceChildren(h('p',{class:'empty'},t('abk_none')));return}
+ box.replaceChildren(h('div',{class:'group'},...ks.map(key=>{const v=o[key];return h('div',{class:'srow'},h('span',{},h('b',{},key=='pre-restore'?t('abk_pre'):new Date(key+'T12:00').toLocaleDateString(lang,{day:'numeric',month:'long',year:'numeric'})),h('small',{style:'display:block;color:var(--mute)'},v.days+' '+t('abk_days'))),h('button',{class:'btn s',style:'padding:8px 12px',onclick:()=>restoreSnap(key)},t('abk_rest')))})))}catch(e){box.replaceChildren(h('p',{class:'empty'},t('abk_none')))}}
+async function initBackup(){
+ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+ try{if(!Object.keys(data).length&&!tpls.length){const o=await idbAll(),ks=Object.keys(o).filter(x=>DRE.test(x)).sort();
+  if(ks.length){const key=ks[ks.length-1],b=$('#rbn');b.hidden=false;b.replaceChildren(h('div',{class:'callout'},h('b',{},t('rbn_t').replace('{a}',new Date(key+'T12:00').toLocaleDateString(lang,{day:'numeric',month:'long'}))),
+   h('div',{class:'flds'},h('button',{class:'btn s',style:'flex:1',onclick:async()=>{await restoreSnap(key);b.hidden=true}},t('abk_rest')),h('button',{class:'btn s',style:'flex:1;background:var(--card);color:var(--ink)',onclick:()=>{b.hidden=true}},t('rbn_no')))))}}
+ else autoSnap()}catch(e){}}
+function remBox(){let ls='',ds='';try{ls=localStorage.getItem('gl_lbk')||'';ds=localStorage.getItem('gl_lrm')||''}catch(e){}
+ if(Object.keys(data).length<5)return[];
+ const last=[ls,ds].sort().pop(),age=last?Math.floor((Date.now()-new Date(last+'T12:00'))/864e5):99;if(age<14)return[];
+ return[h('div',{class:'callout'},h('b',{},ls?t('rem_t').replace('{a}',Math.floor((Date.now()-new Date(ls+'T12:00'))/864e5)):t('rem_never')),
+  h('div',{class:'flds'},h('button',{class:'btn s',style:'flex:1',onclick:openAcc},t('rem_go')),h('button',{class:'btn s',style:'flex:1;background:var(--card);color:var(--ink)',onclick:()=>{try{localStorage.setItem('gl_lrm',k(new Date()))}catch(e){}render()}},t('rem_later'))))]}
+function listUI(pick){
+ const box=h('div'),chips=h('div',{class:'chips'}),ul=h('div');
+ const inp=h('input',{class:'q',type:'search',placeholder:t('search'),value:q,oninput:e=>{q=e.target.value;fill()}});
+ const gs=['all','chest','back','legs','shoulders','arms','core'];
+ function fill(){
+  chips.replaceChildren(...gs.map(x=>h('button',{class:'chip'+(x==gf?' on':''),onclick:()=>{gf=x;fill()}},t(x))));
+  const s=nz(q.trim());
+  ul.replaceChildren(...L.filter(e=>(gf=='all'||e.g==gf)&&(!s||nz(e.en).includes(s)||nz(e.ro).includes(s))).map(e=>h('button',{class:'row',onclick:()=>pick(e.id)},th(e.id),h('span',{},h('b',{},e[lang]),h('small',{},t(e.g)+', '+t(e.e))),h('i',{},'+'))));
+ }
+ fill();box.append(inp,chips,ul);return box;
+}
+
+function openSheet(d){sel=d;mode='day';drawSheet()}
+function closeSheet(){const p=$('#sheet .panel');if(!p||$('#sheet').hidden){sel=null;drawSheet();render();return}p.classList.add('out');$('#sheet').classList.add('fo');setTimeout(()=>{sel=null;drawSheet();render()},240)}
+function drawSheet(){
+ const sh=$('#sheet');
+ if(!sel){sh.hidden=true;return}
+ const fresh=sh.hidden;sh.hidden=false;sh.classList.remove('fo');
+ const p=h('div',{class:'panel'}),date=new Date(sel+'T12:00');
+ p.append(h('div',{class:'ph'},h('h2',{},date.toLocaleDateString(lang,{weekday:'long',day:'numeric',month:'long'})),h('button',{class:'x',onclick:closeSheet,'aria-label':t('close')},'×')));
+ if(mode=='pick'){
+  p.append(h('button',{class:'ghost',onclick:()=>{mode='day';drawSheet()}},'‹ '+t('ret')),listUI(id=>{(data[sel]=data[sel]||[]).push({id,n:3,r:10,w:0});sv();mode='day';drawSheet()}));
+ }else{
+  const es=data[sel]||[];
+  if(!es.length)p.append(h('p',{class:'empty'},t('empty')));
+  es.forEach((en,i)=>{
+   const sl=(lab,key,min,max,step,u)=>{const o=h('b',{},en[key]+u),r=h('input',{type:'range',min,max,step,value:en[key],'aria-label':lab,oninput:e=>{en[key]=+e.target.value;o.textContent=en[key]+u;sv()}});return h('label',{class:'sl'},h('span',{},lab,o),r)};
+   p.append(h('div',{class:'card'},
+    h('div',{class:'ch'},h('span',{class:'it'},th(en.id),h('b',{},L[en.id][lang])),h('button',{class:'x',onclick:()=>{es.splice(i,1);if(!es.length)delete data[sel];sv();drawSheet()},'aria-label':t('del')},'×')),
+    sl(t('sL'),'n',1,10,1,''),sl(t('rL'),'r',1,60,1,''),sl(t('wL'),'w',0,200,2.5,' kg')));
+  });
+  p.append(h('button',{class:'btn',onclick:()=>{mode='pick';q='';gf='all';drawSheet()}},'+ '+t('add')));
+  if(es.length){
+   if(sel==k(new Date()))p.append(h('button',{class:'btn',onclick:()=>{const l=es.map(e=>({...e}));sel=null;drawSheet();startWk(l,t('wtoday'),es)}},t('wstart')));
+   const nm=h('input',{class:'q',placeholder:t('tname'),style:'margin-top:14px'});
+   p.append(nm,h('button',{class:'btn s',style:'margin-top:8px',onclick:()=>saveTpl(nm.value,es)},t('tsave')));
+  }
+ }
+ sh.replaceChildren(p);if(fresh)p.classList.add('in');
+}
+
+function render(){
+ document.documentElement.lang=lang;
+ $('#lg').textContent=lang=='ro'?'EN':'RO';$('#tg').textContent=t('tag');$('#ft').textContent=t('ft');$('#ac').textContent=t('acct');$('#ac').className='lg st-'+ST;
+ document.querySelectorAll('.tab').forEach(b=>{b.classList.toggle('on',b.dataset.t==tab);b.textContent=t(b.dataset.t)});
+ const v=$('#v');
+ if(tab=='cal'&&csub=='prog'){progView(v)}else if(tab=='cal'){
+  const y=cur.getFullYear(),m=cur.getMonth(),off=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate(),td=k(new Date());
+  calSel=calSel||td;
+  let days=0,exs=0,sets=0;const cells=[];
+  for(let i=0;i<off;i++)cells.push(h('span'));
+  for(let d=1;d<=n;d++){
+   const key=k(new Date(y,m,d)),es=data[key]||[];
+   if(es.length){days++;exs+=es.length;es.forEach(e=>sets+=e.n)}
+   const gs=[...new Set(es.map(e=>L[e.id].g))].slice(0,3);
+   cells.push(h('button',{class:'day'+(es.length?' on':'')+(key==td?' td':'')+(key==calSel?' sel':''),'aria-label':key,onclick:()=>{calSel=key;render()}},h('b',{},d),h('span',{class:'dots'},...gs.map(g=>h('i',{style:'background:'+GC[g]})))));
+  }
+  const wd=[...Array(7)].map((_,i)=>h('span',{},new Date(2024,0,1+i).toLocaleDateString(lang,{weekday:'narrow'})));
+  const st=(a,b)=>h('div',{class:'stat'},h('b',{},a),h('small',{},b));
+  const tot=data[calSel]||[],sd=new Date(calSel+'T12:00');
+  v.replaceChildren(...remBox(),calSeg(),
+   h('div',{class:'mh'},h('button',{class:'x',onclick:()=>{cur=new Date(y,m-1,1);render()}},'‹'),h('h2',{},new Date(y,m,1).toLocaleDateString(lang,{month:'long',year:'numeric'})),h('button',{class:'x',onclick:()=>{cur=new Date(y,m+1,1);render()}},'›')),
+   h('div',{class:'stats'},st(days,t('days')),st(exs,t('exs')),st(sets,t('sets'))),
+   h('div',{class:'grid'},...wd,...cells),
+   h('div',{class:'leg'},...Object.keys(GC).map(g=>h('span',{},h('i',{style:'background:'+GC[g]}),t(g)))),
+   h('div',{class:'card'},h('h2',{style:'text-transform:capitalize;margin:0'},sd.toLocaleDateString(lang,{weekday:'long',day:'numeric',month:'long'})),
+    ...(tot.length?tot.map(e=>h('div',{class:'it'},th(e.id),h('span',{},h('b',{},L[e.id][lang]),h('small',{style:'display:block;color:var(--mute)'},e.n+'×'+e.r+(e.w?' @ '+e.w+' kg':''))))):[h('p',{class:'empty'},t('rest'))]),
+    h('button',{class:'btn',onclick:()=>openSheet(calSel)},tot.length?t('edit'):t('addd'))));
+ 
+  }else if(tab=='home'){
+  const can=L.filter(e=>RQ[e.id].split(',').every(r=>r=='-'||eq.includes(r))),gk=Object.keys(GC);
+  v.replaceChildren(
+   h('h2',{},t('homeh')),h('p',{class:'empty'},t('homed')),
+   h('div',{class:'group'},...EQ.map(x=>sw(t(x),eq.includes(x),()=>{eq=eq.includes(x)?eq.filter(y=>y!=x):[...eq,x];sug=[];sv();render()}))),
+   h('button',{class:'btn'+(eq.length?'':' off'),onclick:()=>{if(!eq.length)return;sug=gk.map(g=>{const a=can.filter(e=>e.g==g);return a.length?a[Math.floor(Math.random()*a.length)].id:null}).filter(x=>x!=null);render()}},t('sug')),
+   ...(eq.length&&sug.length?[h('div',{class:'card'},...sug.map(id=>h('div',{class:'it'},th(id),h('b',{},L[id][lang]))),h('button',{class:'btn',onclick:()=>{const key=k(new Date());sug.forEach(id=>(data[key]=data[key]||[]).push({id,n:3,r:10,w:0}));sv();sug=[];openSheet(key)}},t('sugadd')))]:[]),
+   ...(eq.length?[h('h2',{style:'margin-top:22px'},can.length+' '+t('avail')),
+   ...gk.flatMap(g=>{const a=can.filter(e=>e.g==g);return a.length?[h('div',{class:'gh'},h('i',{style:'background:'+GC[g]}),h('b',{},t(g))),...a.map(e=>h('button',{class:'row',onclick:()=>addToday(e.id)},th(e.id),h('span',{},h('b',{},e[lang]),h('small',{},t(e.e))),h('i',{},'+')))]:[]})]:[]));
+ }else if(tab=='food'){foodView(v)}else{libView(v);
+ }
+}
+$('#lg').onclick=()=>{lang=lang=='ro'?'en':'ro';sv();render();if(sel)drawSheet()};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{tab=b.dataset.t;q='';gf='all';go=1;render()});
+$('#ac').onclick=openAcc;
+$('#big').onclick=e=>{if(e.target.id=='big')e.target.hidden=true};
+$('#sheet').onclick=e=>{if(e.target.id=='sheet')closeSheet()};
+Object.values(data).forEach(es=>es.forEach(en=>{if(en.n==null){const x=en.sets||[],l=x[x.length-1]||[10,0];en.n=x.length||3;en.r=l[0]||10;en.w=l[1]||0;delete en.sets}}));
+const _rd=render;render=()=>{_rd();const v=$('#v');$('.tabs').style.setProperty('--i',['cal','lib','home','food'].indexOf(tab));if(go){go=0;v.classList.remove('go');void v.offsetWidth;v.classList.add('go')}};
+render();initSync();initBackup();
+</script></body></html>
