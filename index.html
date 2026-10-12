@@ -146,6 +146,7 @@ button:active{transform:scale(.96);opacity:.85}
 .hrow{scroll-padding:0 20px;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:14px -20px 0;padding:0 20px 8px}.hrow>div{flex:none;width:236px;scroll-snap-align:start;background:var(--card);border-radius:20px;padding:14px}.hrow svg{width:110px;margin:0 auto 6px}.hrow b{display:block}.hrow small{color:var(--mute)}
 .hn{display:flex;gap:14px;align-items:center}.hn svg{flex:none;width:64px}
 .hch{display:flex;gap:12px;align-items:center}.hch svg{flex:none;width:70px}
+.lgw{display:flex;align-items:center;gap:8px}@media (max-width:480px){.lgw h1{font-size:19px}.mas{width:34px;height:34px}.hb .lg{padding:6px 10px}}.mas{flex:none;width:40px;height:40px}.lgw>span{min-width:0}.lgw small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}@media (prefers-reduced-motion:reduce){.mas *{display:none}}
 header>div:first-child{cursor:pointer}
 
 .tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;line-height:1.1;padding:7px 2px 6px}
@@ -187,8 +188,11 @@ body{padding-bottom:104px}#toast{bottom:calc(100px + env(safe-area-inset-bottom,
 *{scrollbar-width:none;-ms-overflow-style:none}*::-webkit-scrollbar{display:none;width:0;height:0}
 @media (min-width:900px){
 body{padding-left:230px;padding-bottom:40px}
-header,main,#ft,#rbn{max-width:760px}
-.tabs{top:0;right:auto;bottom:0;width:230px;flex-direction:column;gap:4px;padding:24px 12px 16px;border-top:0;border-right:1px solid var(--line)}
+header,main,#ft,#rbn{max-width:none;width:100%;margin-left:0;margin-right:0}
+header{padding:20px 40px 6px}main{padding:12px 40px}#ft,#rbn{padding-left:40px;padding-right:40px}
+.group{display:grid;grid-template-columns:1fr 1fr}.group>.srow,.group>.rk{border-right:1px solid var(--line)}.group>:nth-child(2n){border-right:0}
+.group>:last-child:nth-child(odd){grid-column:1/-1;border-right:0}
+.day{aspect-ratio:auto;height:78px}.bdg{grid-template-columns:repeat(6,1fr)}.tabs{top:0;right:auto;bottom:0;width:230px;flex-direction:column;gap:4px;padding:24px 12px 16px;border-top:0;border-right:1px solid var(--line)}
 .tab{flex-direction:row;justify-content:flex-start;gap:12px;height:52px;flex:none;padding:0 16px;font-size:15px;border-radius:14px}
 .tab span{text-align:left}.tab svg{width:24px;height:24px}
 .ind{left:12px;right:12px;width:auto;bottom:auto;height:52px;top:calc(24px + var(--i,0)*56px);transform:none;transition:top .4s cubic-bezier(.32,.72,0,1)}
@@ -209,7 +213,7 @@ body.nobg #bg{display:none}
 .addb:hover{background:var(--acc);color:var(--accI)}
 </style></head><body>
 <div id="bg" aria-hidden="true"></div>
-<header><div><h1>GymHub</h1><small id="tg"></small></div><div class="hb"><button class="lg" id="ac"></button><button class="lg" id="lg"></button><button class="lg ic" id="th" type="button"></button><button class="lg sm" id="inst" hidden></button></div></header>
+<header><div class="lgw"><svg class="mas" viewBox="0 0 60 60" aria-hidden="true"><g fill="none" stroke="var(--ink)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M30 29V43M30 43L23 57M30 43L37 57"/><line x1="30" y1="31" x2="17" y2="21"><animate attributeName="x2" values="15;12;15" dur="1.6s" repeatCount="indefinite"/><animate attributeName="y2" values="30;9;30" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/></line><line x1="30" y1="31" x2="43" y2="21"><animate attributeName="x2" values="45;48;45" dur="1.6s" repeatCount="indefinite"/><animate attributeName="y2" values="30;9;30" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/></line></g><g stroke="var(--acc)" stroke-width="3" stroke-linecap="round"><g><animateTransform attributeName="transform" type="translate" values="0 21;0 0;0 21" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/><line x1="6" y1="9" x2="54" y2="9"/><line x1="9" y1="3" x2="9" y2="15" stroke-width="4.5"/><line x1="51" y1="3" x2="51" y2="15" stroke-width="4.5"/></g></g><circle cx="30" cy="17" r="10" fill="var(--card)" stroke="var(--ink)" stroke-width="3"/><circle cx="26.5" cy="15" r="1.5" fill="var(--ink)"/><circle cx="33.5" cy="15" r="1.5" fill="var(--ink)"/><path d="M25 19.5Q30 25 35 19.5" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/></svg><span><h1>GymHub</h1><small id="tg"></small></span></div><div class="hb"><button class="lg" id="ac"></button><button class="lg" id="lg"></button><button class="lg ic" id="th" type="button"></button><button class="lg sm" id="inst" hidden></button></div></header>
 <div id="rbn" hidden></div>
 <main id="v"></main><footer id="ft"></footer>
 <div id="sheet" hidden></div><div id="big" hidden></div><div id="wk" hidden></div><div id="hm" hidden></div><div id="toast"></div>
