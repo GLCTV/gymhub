@@ -1183,17 +1183,19 @@ async function ntfPush(c,force){
  try{const reg=await Promise.race([navigator.serviceWorker.ready,new Promise((_,no)=>setTimeout(no,4000))]);let sub=await reg.pushManager.getSubscription();
   if(!c.on){if(sub){try{await fetch(PUSH.url+'/unsub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({endpoint:sub.endpoint})})}catch(e){}await sub.unsubscribe()}try{localStorage.removeItem('gl_ntfs')}catch(e){}return false}
   if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8k(PUSH.key)});
-  const b={sub:sub.toJSON(),days:c.days,time:c.time,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,lang,td:lastTrain()},sig=JSON.stringify([b.days,b.time,b.tz,lang,b.td,sub.endpoint]);
+  const b={sub:sub.toJSON(),days:c.days,time:c.times[0],times:c.times,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,lang,td:lastTrain()},sig=JSON.stringify([b.days,b.times,b.tz,lang,b.td,sub.endpoint]);
   if(!force&&localStorage.getItem('gl_ntfs')==sig)return true;
   const r=await fetch(PUSH.url+'/sub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});
   if(r.ok){try{localStorage.setItem('gl_ntfs',sig)}catch(e){}return true}
  }catch(e){}
  return false}
 const pushOn=()=>{try{return !!localStorage.getItem('gl_ntfs')}catch(e){return false}};
-function ntfGet(){let c={};try{c=JSON.parse(localStorage.getItem(NK)||'{}')}catch(e){}return{on:!!c.on,days:Array.isArray(c.days)?c.days:[1,3,5],time:c.time||'18:00',last:c.last||''}}
+const NTM=/^([01]\d|2[0-3]):[0-5]\d$/,DEF={days:[0,1,2,3,4,5,6],times:['10:00','18:00']};
+const ntfNow=ts=>{const n=new Date(),m=n.getHours()*60+n.getMinutes();return k(n)+'|'+ts.filter(x=>+x.slice(0,2)*60+ +x.slice(3)<=m).join(',')};
+function ntfGet(){let c={};try{c=JSON.parse(localStorage.getItem(NK)||'{}')}catch(e){}let ts=(Array.isArray(c.times)?c.times:(c.time?[c.time]:DEF.times)).filter(x=>NTM.test(x));ts=[...new Set(ts)].sort();if(!ts.length)ts=DEF.times.slice();return{on:!!c.on,days:Array.isArray(c.days)?c.days:DEF.days.slice(),times:ts,time:ts[0],last:c.last||''}}
 function ntfSet(c){try{localStorage.setItem(NK,JSON.stringify(c))}catch(e){}}
 const NDN=i=>new Date(2024,0,1+i).toLocaleDateString(lang,{weekday:'short'});
-function ntfSummary(c){return c.on?c.days.slice().sort((a,b)=>(a||7)-(b||7)).map(d=>NDN((d+6)%7)).join(', ')+' · '+c.time:NT('Oprit','Off')}
+function ntfSummary(c){return c.on?(c.days.length==7?NT('Zilnic','Daily'):c.days.slice().sort((a,b)=>(a||7)-(b||7)).map(d=>NDN((d+6)%7)).join(', '))+' · '+c.times.join(' / '):NT('Oprit','Off')}
 function ntfCard(){const c=ntfGet();return h('div',{class:'card'},h('div',{class:'ntf'},h('span',{},h('b',{},'🔔 '+NT('Memento antrenament','Workout reminder')),h('small',{},ntfSummary(c))),h('button',{class:'btn s',onclick:ntfDlg},NT('Setează','Set up'))))}
 function ntfMsg(){const a=lang=='ro'?["💪 Hai la antrenament!", "⏰ E timpul pentru primul set!", "🔥 Începe azi. Progresează zilnic!", "🎯 Ai 20 de minute? Hai la mișcare!", "🏋️ Hai să creștem în masă musculară!", "🚀 Fă un pas spre obiectivul tău!", "💥 Ține-te de plan! Hai la sală!", "👟 Încalță-te și hai la mișcare!", "🏆 Consecvența aduce rezultate!", "⚡ Fă ceva pentru tine astăzi!", "⏱️ Ai 15 minute? Începe acum!", "🔥 Acționează acum. Motivează-te pe parcurs!", "💪 Încă o repetare, încă un progres!", "📲 Deschide GymHub și antrenează-te!", "✅ Nu amâna! Începe acum!", "🎯 Ești gata? Hai la treabă!", "🏋️ Mai puține scuze, mai multă mișcare!", "💨 Respiră adânc și dă-i drumul!", "📈 Fii mai bun decât ieri!", "🚀 Mișcă-te azi. Progresează mâine!"]:["💪 Time to work out!", "⏰ Time for your first set!", "🔥 Start today. Progress daily!", "🎯 Got 20 minutes? Let's move!", "🏋️ Let's build some muscle!", "🚀 Take a step toward your goal!", "💥 Stick to your plan. Let's train!", "👟 Lace up and get moving!", "🏆 Consistency brings results!", "⚡ Do something for yourself today!", "⏱️ Got 15 minutes? Start now!", "🔥 Take action. Find motivation along the way!", "💪 One more rep, one more gain!", "📲 Open GymHub and get moving!", "✅ Don't put it off. Start now!", "🎯 Ready? Let's get to work!", "🏋️ Less excuses, more movement!", "💨 Take a deep breath and go!", "📈 Be better than yesterday!", "🚀 Move today. Progress tomorrow!"];return a[Math.floor(Math.random()*a.length)]}
 function ntfFire(test){const ti='GymHub 💪',bo=ntfMsg();
@@ -1204,35 +1206,37 @@ function ntfFire(test){const ti='GymHub 💪',bo=ntfMsg();
   else{try{new Notification(ti,o)}catch(e){fb()}}
  }else fb()}
 function ntfCheck(){const c=ntfGet();if(!c.on)return;if(pushOk())ntfPush(c,false);const n=new Date(),td=k(n);
- if(!c.days.includes(n.getDay())||c.last==td)return;
- const [hh,mm]=c.time.split(':').map(Number),due=new Date(n.getFullYear(),n.getMonth(),n.getDate(),hh||0,mm||0);
- if(n<due)return;
- c.last=td;ntfSet(c);
+ if(!c.days.includes(n.getDay()))return;
+ const sp=(c.last||'').split('|'),done=sp[0]==td?(sp.length>1?sp[1].split(',').filter(Boolean):c.times.slice()):[];let fire=false;
+ for(const tm of c.times){if(done.includes(tm))continue;const [hh,mm]=tm.split(':').map(Number);if(n<new Date(n.getFullYear(),n.getMonth(),n.getDate(),hh||0,mm||0))continue;done.push(tm);fire=true}
+ if(!fire)return;c.last=td+'|'+done.join(',');ntfSet(c);
  if((data[td]||[]).length||pushOn())return;
  ntfFire()}
 function ntfIcs(c){
  const pad=x=>String(x).padStart(2,'0'),n=new Date();let d=new Date(n.getFullYear(),n.getMonth(),n.getDate());
  for(let i=0;i<8&&!c.days.includes(d.getDay());i++)d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
- const [hh,mm]=c.time.split(':').map(Number),ds=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(hh)+pad(mm)+'00';
  const BY=['SU','MO','TU','WE','TH','FR','SA'],by=c.days.slice().sort((a,b)=>(a||7)-(b||7)).map(x=>BY[x]).join(','),sm=NT('GymHub – Antrenament','GymHub – Workout'),ds2=NT('Timp de mișcare! Deschide GymHub și fă primul set.','Time to move! Open GymHub and do your first set.');
  const stamp=n.getUTCFullYear()+pad(n.getUTCMonth()+1)+pad(n.getUTCDate())+'T'+pad(n.getUTCHours())+pad(n.getUTCMinutes())+'00Z';
- const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//GymHub//Memento//RO','CALSCALE:GREGORIAN','BEGIN:VEVENT','UID:gymhub-memento-'+Date.now()+'@gymhub.men','DTSTAMP:'+stamp,'DTSTART:'+ds,'DURATION:PT1H','RRULE:FREQ=WEEKLY;BYDAY='+by,'SUMMARY:'+sm,'DESCRIPTION:'+ds2,'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+ds2,'TRIGGER:PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'];
+ const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//GymHub//Memento//RO','CALSCALE:GREGORIAN'];
+ c.times.forEach((tm,i)=>{const [hh,mm]=tm.split(':').map(Number),ds=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(hh)+pad(mm)+'00';
+  L.push('BEGIN:VEVENT','UID:gymhub-memento-'+Date.now()+'-'+i+'@gymhub.men','DTSTAMP:'+stamp,'DTSTART:'+ds,'DURATION:PT1H','RRULE:FREQ=WEEKLY;BYDAY='+by,'SUMMARY:'+sm,'DESCRIPTION:'+ds2,'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+ds2,'TRIGGER:PT0M','END:VALARM','END:VEVENT')});
+ L.push('END:VCALENDAR');
  const bl=new Blob([L.join('\r\n')+'\r\n'],{type:'text/calendar'}),a=h('a',{href:URL.createObjectURL(bl),download:'gymhub-memento.ics'});document.body.append(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},2000)}
 function ntfDlg(){
  const c=ntfGet(),ov=h('div',{id:'qa',role:'dialog','aria-modal':'true'}),close=()=>{ov.remove();document.removeEventListener('keydown',kd)},kd=e=>{if(e.key=='Escape')close()};
- const box=h('div',{class:'qa'}),tm=h('input',{type:'time',value:c.time,class:'q','aria-label':NT('Ora','Time'),style:'width:100%'});
+ const box=h('div',{class:'qa'}),tm=h('input',{type:'time',value:c.times[0]||'',class:'q','aria-label':NT('Ora 1','Time 1'),style:'width:100%'}),tm2=h('input',{type:'time',value:c.times[1]||'',class:'q','aria-label':NT('Ora 2','Time 2'),style:'width:100%'}),gt=()=>{const a=[...new Set([tm.value,tm2.value].filter(x=>NTM.test(x)))].sort();return a.length?a:['18:00']};
  const perm=()=>('Notification' in window)?(Notification.permission=='granted'?'':Notification.permission=='denied'?NT('Notificările sunt blocate în setările browserului. Le poți permite din setările site-ului.','Notifications are blocked in your browser settings. You can allow them in the site settings.'):''):NT('Acest browser nu suportă notificări. Folosește calendarul telefonului.','This browser does not support notifications. Use your phone calendar.');
  const draw=()=>box.replaceChildren(h('h2',{style:'margin:0 0 8px'},'🔔 '+NT('Memento antrenament','Workout reminder')),
   h('button',{class:'srow',role:'switch','aria-checked':String(c.on),onclick:()=>{c.on=!c.on;draw()}},h('span',{style:'flex:1'},h('b',{},NT('Memento activ','Reminder on'))),h('i',{class:'tg'+(c.on?' on':'')})),
   h('small',{class:'empty',style:'display:block;margin:10px 0 4px'},NT('Zile','Days')),
   h('div',{class:'chips'},...[0,1,2,3,4,5,6].map(i=>{const d=(i+1)%7;return h('button',{type:'button',class:'chip'+(c.days.includes(d)?' on':''),'aria-pressed':String(c.days.includes(d)),onclick:()=>{c.days=c.days.includes(d)?c.days.filter(x=>x!=d):[...c.days,d];draw()}},NDN(i))})),
-  h('small',{class:'empty',style:'display:block;margin:10px 0 4px'},NT('Ora','Time')),tm,
+  h('small',{class:'empty',style:'display:block;margin:10px 0 4px'},NT('Ore (a doua e opțională)','Times (the second is optional)')),h('div',{style:'display:flex;gap:8px'},tm,tm2),
   h('small',{class:'empty',style:'display:block;margin-top:10px'},NT('Aplicația te anunță când e deschisă sau în fundal, doar dacă nu ai antrenat deja în ziua respectivă. Pentru memento sigur și când aplicația e închisă, adaugă-l în calendarul telefonului.','The app reminds you while it is open or in the background, only if you have not trained yet that day. For a reliable reminder even when the app is closed, add it to your phone calendar.')),
   h('small',{class:'empty',style:'display:block;margin-top:6px'},pushOk()?(pushOn()?NT('✓ Notificări push active: primești memento-ul și cu aplicația închisă.','✓ Push notifications active: you get the reminder even when the app is closed.'):NT('Push (cu aplicația închisă): se activează la Salvează, după ce permiți notificările. Pe iPhone, aplicația trebuie adăugată pe ecranul principal.','Push (app closed): turns on when you tap Save and allow notifications. On iPhone the app must be added to the home screen.')):''),
   ...(perm()?[h('small',{class:'empty',style:'display:block;margin-top:6px;color:var(--acc)'},perm())]:[]),
-  h('button',{class:'btn',type:'button',onclick:async()=>{c.time=tm.value||'18:00';if(!c.days.length)c.days=[1,3,5];if(c.on&&'Notification' in window&&Notification.permission=='default'){try{await Notification.requestPermission()}catch(e){}}c.last='';ntfSet(c);if(pushOk()&&Notification.permission=='granted')await ntfPush(c,true);close();toast(NT('Memento salvat','Reminder saved'));render();ntfCheck()}},NT('Salvează','Save')),
-  h('button',{class:'btn s',type:'button',style:'background:var(--card);color:var(--ink)',onclick:async()=>{if('Notification' in window&&Notification.permission=='default'){try{await Notification.requestPermission()}catch(e){}}ntfFire(true);draw()}},NT('Trimite o notificare de test','Send a test notification')),
-  h('button',{class:'btn s',type:'button',style:'background:var(--card);color:var(--ink)',onclick:()=>{c.time=tm.value||'18:00';if(!c.days.length)c.days=[1,3,5];ntfIcs(c)}},NT('Adaugă în calendarul telefonului (.ics)','Add to phone calendar (.ics)')),
+  h('button',{class:'btn',type:'button',onclick:async()=>{c.times=gt();c.time=c.times[0];if(!c.days.length)c.days=[0,1,2,3,4,5,6];if(c.on&&'Notification' in window&&Notification.permission=='default'){try{await Notification.requestPermission()}catch(e){}}c.last='';ntfSet(c);if(pushOk()&&Notification.permission=='granted')await ntfPush(c,true);close();toast(NT('Memento salvat','Reminder saved'));render();ntfCheck()}},NT('Salvează','Save')),
+  h('button',{class:'btn s',type:'button',style:'background:var(--card);color:var(--ink)',onclick:async()=>{if('Notification' in window&&Notification.permission=='default'){try{await Notification.requestPermission()}catch(e){}}if('Notification' in window&&Notification.permission=='granted'&&!localStorage.getItem(NK)){c.on=true;c.last=ntfNow(c.times);ntfSet(c);if(pushOk())ntfPush(c,true);render()}ntfFire(true);draw()}},NT('Trimite o notificare de test','Send a test notification')),
+  h('button',{class:'btn s',type:'button',style:'background:var(--card);color:var(--ink)',onclick:()=>{c.times=gt();c.time=c.times[0];if(!c.days.length)c.days=[0,1,2,3,4,5,6];ntfIcs(c)}},NT('Adaugă în calendarul telefonului (.ics)','Add to phone calendar (.ics)')),
   h('button',{class:'ghost',type:'button',style:'width:100%',onclick:close},t('qa_no')));
  draw();ov.onclick=e=>{if(e.target==ov)close()};document.addEventListener('keydown',kd);ov.append(box);document.body.append(ov)}
 /*auto-ask*/function ntfAuto(){let asked=-1,cfg='',u=1;try{u=(+localStorage.getItem('gl_ntfu')||0)+1;localStorage.setItem('gl_ntfu',String(u));const a=localStorage.getItem('gl_ntfa');asked=a===null?-1:(+a||0);cfg=localStorage.getItem(NK)||''}catch(e){}
@@ -1242,8 +1246,8 @@ function ntfDlg(){
  const go=async()=>{removeEventListener('click',go,true);removeEventListener('touchend',go,true);try{localStorage.setItem('gl_ntfa',String(u))}catch(e){}
   if(per=='denied'){toast(NT('Notificările sunt blocate. Le poți permite din setările telefonului, la GymHub.','Notifications are blocked. You can allow them in your phone settings, under GymHub.'));return}
   let r='default';try{r=await Notification.requestPermission()}catch(e){}
-  if(r=='granted'){const c={on:true,days:[1,3,5],time:'18:00',last:k(new Date())};ntfSet(c);if(pushOk())await ntfPush(c,true);toast(NT('Memento activat: L, Mi, V la 18:00. Îl schimbi sau oprești din Calendar.','Reminder on: Mon, Wed, Fri at 18:00. Change or turn it off in Calendar.'))}};
- if(per=='granted'){const c={on:true,days:[1,3,5],time:'18:00',last:k(new Date())};ntfSet(c);if(pushOk())ntfPush(c,true);return}
+  if(r=='granted'){const c={on:true,days:DEF.days.slice(),times:DEF.times.slice(),time:'10:00',last:ntfNow(DEF.times)};ntfSet(c);if(pushOk())await ntfPush(c,true);toast(NT('Notificări active: zilnic la 10:00 și 18:00. Le schimbi sau oprești din Calendar.','Notifications on: daily at 10:00 and 18:00. Change or turn them off in Calendar.'))}};
+ if(per=='granted'){const c={on:true,days:DEF.days.slice(),times:DEF.times.slice(),time:'10:00',last:ntfNow(DEF.times)};ntfSet(c);if(pushOk())ntfPush(c,true);return}
  addEventListener('click',go,true);addEventListener('touchend',go,true)}
 setTimeout(ntfAuto,2500);
 setTimeout(ntfCheck,1500);setInterval(ntfCheck,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ntfCheck()});
