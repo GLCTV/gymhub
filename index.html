@@ -1110,7 +1110,17 @@ function rwView(v){
 const TABS=['lib','home','food','cal','rw'],dirOf=(a,f,t2)=>a.indexOf(t2)>a.indexOf(f)?1:-1;
 const IOs=typeof IntersectionObserver!='undefined'?new IntersectionObserver(es=>es.forEach(e=>{const sv=e.target.querySelector('svg');if(!sv||!sv.pauseAnimations)return;if(e.isIntersecting)sv.unpauseAnimations();else sv.pauseAnimations()}),{rootMargin:'40px'}):null;
 function play(el){el.classList.remove('go');void el.offsetWidth;el.classList.add('go')}
-function push(el,dir,fn){fn();if(dir)play(el)}
+function push(el,dir,fn){
+ if(!dir||!el.animate||!el.firstChild){fn();if(dir)play(el);return}
+ const r=el.getBoundingClientRect(),rm=matchMedia('(prefers-reduced-motion: reduce)').matches,dx=rm?0:dir*26;
+ let g=null;
+ try{g=el.cloneNode(true);g.removeAttribute('id');g.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));g.setAttribute('aria-hidden','true');g.inert=true;
+  Object.assign(g.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:Math.min(r.height,innerHeight)+'px',overflow:'hidden',margin:'0',pointerEvents:'none',zIndex:'2',background:'transparent'});document.body.append(g)}catch(e){g=null}
+ fn();
+ const E='cubic-bezier(.32,.72,0,1)';
+ el.animate([{opacity:0,transform:'translateX('+dx+'px)'},{opacity:1,transform:'none'}],{duration:340,easing:E,delay:50,fill:'backwards'});
+ if(g){const a=g.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateX('+(-dx*.6)+'px)'}],{duration:200,easing:'ease-out',fill:'forwards'});a.onfinish=a.oncancel=()=>g.remove();setTimeout(()=>g.remove(),600)}
+}
 function dragSheet(ov,close){let y0=0,dy=0,p=null,on=false;
  ov.addEventListener('touchstart',e=>{p=e.target.closest('.panel');if(!p||p.scrollTop>0||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){p=null;return}y0=e.touches[0].clientY;dy=0;on=true},{passive:true});
  ov.addEventListener('touchmove',e=>{if(!on||!p)return;dy=Math.max(0,e.touches[0].clientY-y0);p.style.transition='none';p.style.transform='translateY('+dy+'px)';ov.style.background='rgba(10,14,22,'+(.5*(1-Math.min(dy/400,1)))+')'},{passive:true});
@@ -1185,7 +1195,7 @@ function ntfSet(c){try{localStorage.setItem(NK,JSON.stringify(c))}catch(e){}}
 const NDN=i=>new Date(2024,0,1+i).toLocaleDateString(lang,{weekday:'short'});
 function ntfSummary(c){return c.on?c.days.slice().sort((a,b)=>(a||7)-(b||7)).map(d=>NDN((d+6)%7)).join(', ')+' · '+c.time:NT('Oprit','Off')}
 function ntfCard(){const c=ntfGet();return h('div',{class:'card'},h('div',{class:'ntf'},h('span',{},h('b',{},'🔔 '+NT('Memento antrenament','Workout reminder')),h('small',{},ntfSummary(c))),h('button',{class:'btn s',onclick:ntfDlg},NT('Setează','Set up'))))}
-function ntfMsg(){const a=lang=='ro'?['Hai la mișcare! Un antrenament scurt contează.','E timpul tău de antrenament. Fă primul set!','Corpul tău îți mulțumește după fiecare antrenament. Începe acum!','Nu sări peste azi: chiar și 20 de minute te apropie de țintă.']:['Time to move! A short workout still counts.','It is your workout time. Do the first set!','Your body thanks you after every workout. Start now!','Do not skip today: even 20 minutes gets you closer.'];return a[Math.floor(Math.random()*a.length)]}
+function ntfMsg(){const a=lang=='ro'?["Hai la mișcare! Un antrenament scurt contează.", "E timpul tău de antrenament. Fă primul set!", "Corpul tău îți mulțumește după fiecare antrenament. Începe acum!", "Nu sări peste azi: chiar și 20 de minute te apropie de țintă.", "Mușchii nu cresc singuri. Hai la sală!", "Un pas mic azi, un rezultat mare mâine.", "Ai spus că o faci. Hai să dovedim asta azi!", "Cel mai greu e începutul. Pune-ți încălțămintele și hai!", "Consecvența bate motivația. Fă antrenamentul de azi!", "Viitorul tău te va răsplăti pentru efortul de azi.", "Doar 15 minute. Începe și vezi cum te simți.", "Energia vine după antrenament, nu înainte. Hai!", "Fiecare repetare te apropie de cea mai bună versiune a ta.", "Azi e o zi bună de antrenament. Deschide GymHub!", "Nu trebuie să fie perfect, trebuie doar să fie făcut.", "Corpul tău e pregătit. Mai ai nevoie doar de decizie!", "Un antrenament făcut valorează mai mult decât unul planificat.", "Respiră adânc, ia ganterele și începe!", "Progresul se construiește zi de zi. Azi e rândul tău.", "Începe o nouă viață prin mișcare! Hai la antrenament."]:["Time to move! A short workout still counts.", "It is your workout time. Do the first set!", "Your body thanks you after every workout. Start now!", "Do not skip today: even 20 minutes gets you closer.", "Muscles do not grow on their own. Let's train!", "A small step today, a big result tomorrow.", "You said you would. Let's prove it today!", "The hardest part is starting. Lace up and go!", "Consistency beats motivation. Do today's workout!", "Future you will thank you for today's effort.", "Just 15 minutes. Start and see how you feel.", "Energy comes after the workout, not before. Go!", "Every rep brings you closer to your best self.", "Today is a good day to train. Open GymHub!", "It does not have to be perfect, it just has to be done.", "Your body is ready. You only need to decide!", "A workout done beats a workout planned.", "Take a deep breath, grab the weights and begin!", "Progress is built day by day. Today is your turn.", "Start a new life through movement! Time to train."];return a[Math.floor(Math.random()*a.length)]}
 function ntfFire(test){const ti='GymHub 💪',bo=ntfMsg();
  const fb=()=>toast(bo);
  if('Notification' in window&&Notification.permission=='granted'){
@@ -1225,6 +1235,17 @@ function ntfDlg(){
   h('button',{class:'btn s',type:'button',style:'background:var(--card);color:var(--ink)',onclick:()=>{c.time=tm.value||'18:00';if(!c.days.length)c.days=[1,3,5];ntfIcs(c)}},NT('Adaugă în calendarul telefonului (.ics)','Add to phone calendar (.ics)')),
   h('button',{class:'ghost',type:'button',style:'width:100%',onclick:close},t('qa_no')));
  draw();ov.onclick=e=>{if(e.target==ov)close()};document.addEventListener('keydown',kd);ov.append(box);document.body.append(ov)}
+/*auto-ask*/function ntfAuto(){let asked=-1,cfg='',u=1;try{u=(+localStorage.getItem('gl_ntfu')||0)+1;localStorage.setItem('gl_ntfu',String(u));const a=localStorage.getItem('gl_ntfa');asked=a===null?-1:(+a||0);cfg=localStorage.getItem(NK)||''}catch(e){}
+ if(cfg||!('Notification' in window))return;
+ if(asked>=0&&u-asked<5)return;
+ const per=Notification.permission;
+ const go=async()=>{removeEventListener('click',go,true);removeEventListener('touchend',go,true);try{localStorage.setItem('gl_ntfa',String(u))}catch(e){}
+  if(per=='denied'){toast(NT('Notificările sunt blocate. Le poți permite din setările telefonului, la GymHub.','Notifications are blocked. You can allow them in your phone settings, under GymHub.'));return}
+  let r='default';try{r=await Notification.requestPermission()}catch(e){}
+  if(r=='granted'){const c={on:true,days:[1,3,5],time:'18:00',last:k(new Date())};ntfSet(c);if(pushOk())await ntfPush(c,true);toast(NT('Memento activat: L, Mi, V la 18:00. Îl schimbi sau oprești din Calendar.','Reminder on: Mon, Wed, Fri at 18:00. Change or turn it off in Calendar.'))}};
+ if(per=='granted'){const c={on:true,days:[1,3,5],time:'18:00',last:k(new Date())};ntfSet(c);if(pushOk())ntfPush(c,true);return}
+ addEventListener('click',go,true);addEventListener('touchend',go,true)}
+setTimeout(ntfAuto,2500);
 setTimeout(ntfCheck,1500);setInterval(ntfCheck,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ntfCheck()});
 if('serviceWorker' in navigator&&!window.claude&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 const waterGoal=()=>{const w=+prof.w;return w>=35&&w<=250?Math.round(w*35/50)*50:2000},fmtL=ml=>(ml/1000).toFixed(2).replace(/\.?0+$/,'');
