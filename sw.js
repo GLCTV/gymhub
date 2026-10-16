@@ -49,3 +49,19 @@ self.addEventListener('fetch', e => {
     );
   }
 });
+
+// Notificări push (memento antrenament)
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data.json(); } catch (_) {}
+  e.waitUntil(self.registration.showNotification(d.title || 'GymHub 💪', {
+    body: d.body || '', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'gymhub-rem', data: { url: './' }
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(l => {
+    for (const c of l) if ('focus' in c) return c.focus();
+    return clients.openWindow('./');
+  }));
+});
