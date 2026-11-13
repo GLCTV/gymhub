@@ -1555,7 +1555,9 @@ function ntfDlg(){
  addEventListener('click',go,true);addEventListener('touchend',go,true)}
 setTimeout(ntfAuto,2500);
 setTimeout(ntfCheck,1500);setInterval(ntfCheck,60000);document.addEventListener('visibilitychange',()=>{if(document.hidden)wipSave();else ntfCheck()});addEventListener('pagehide',wipSave);['gesturestart','gesturechange','gestureend'].forEach(g=>document.addEventListener(g,e=>e.preventDefault()));
-if('serviceWorker' in navigator&&!window.claude&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if('serviceWorker' in navigator&&!window.claude&&/^https?:$/.test(location.protocol))addEventListener('load',()=>{const had=!!navigator.serviceWorker.controller;let rl=false;
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!had||rl)return;rl=true;try{wipSave()}catch(e){}location.reload()});
+ navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{const up=()=>reg.update().catch(()=>{});up();document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible')up()});setInterval(up,30*60e3)}).catch(()=>{})});
 const waterGoal=()=>{const w=+prof.w;return w>=35&&w<=250?Math.round(w*35/50)*50:2000},fmtL=ml=>(ml/1000).toFixed(2).replace(/\.?0+$/,'');
 const foodSeg=v=>{const g=segc([['plan',t('fs_plan')],['log',t('fs_log')],['shop',t('fs_shop')]],fsub,x=>{ANI=x==fsub?0:dirOf(['plan','log','shop'],fsub,x);fsub=x;foodView(v)});g.children[2].classList.add('shp');return g};
 function cleanFj(o){const r={};if(!o||typeof o!='object')return r;for(const d in o)if(DRE.test(d)&&o[d]){const j=o[d],m={};['B','S1','L','S2','D','N'].forEach(x=>{if(j.m&&j.m[x])m[x]=1});r[d]={w:num(j.w,0,10000,0),m,c:(Array.isArray(j.c)?j.c:[]).slice(0,30).filter(x=>x&&typeof x.n=='string').map(x=>({n:x.n.slice(0,40),k:num(x.k,0,5000,0),p:num(x.p,0,500,0)}))}}return r}

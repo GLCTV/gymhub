@@ -1,5 +1,5 @@
 // GymHub service worker: aplicatia merge si fara internet.
-const V = 'gymhub-v8', F = 'gymhub-fonts-v1';
+const V = 'gymhub-v9', F = 'gymhub-fonts-v1';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
