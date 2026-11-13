@@ -1,5 +1,5 @@
 // GymHub service worker: aplicatia merge si fara internet.
-const V = 'gymhub-v9', F = 'gymhub-fonts-v1';
+const V = 'gymhub-v10', F = 'gymhub-fonts-v1';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -23,7 +23,7 @@ self.addEventListener('fetch', e => {
     // Pagina: mai intai reteaua (ca sa primesti versiunea noua), apoi memoria daca esti offline sau reteaua e lenta.
     if (r.mode === 'navigate') {
       e.respondWith(
-        Promise.race([fetch(r), new Promise((_, no) => setTimeout(no, 4000))])
+        Promise.race([fetch(r.url,{cache:'no-store',credentials:'same-origin'}), new Promise((_, no) => setTimeout(no, 4000))])
           .then(x => { if (x.ok) { const cp = x.clone(); caches.open(V).then(c => c.put('./index.html', cp)); } return x; })
           .catch(() => caches.match('./index.html'))
       );
