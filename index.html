@@ -866,6 +866,8 @@ const SUBL={ch_mid:[0,38,3,41,2,83,5,82,80,81],ch_up:[39,1,112,113,40],ch_low:[1
 const SUBG={chest:['ch_mid','ch_up','ch_low'],back:['bk_lat','bk_mid','bk_tr','bk_low'],shoulders:['sh_lat','sh_fr','sh_rear'],bi:['ar_bil','ar_bis','ar_bra'],tri:['ar_tril','ar_trix'],fa:['ar_fa'],legs:['lg_q','lg_h','lg_g','lg_c'],core:['co_lo','co_up','co_ob','co_st']};
 const SUBN={ch_up:['Piept superior','Upper chest'],ch_mid:['Piept mijloc','Middle chest'],ch_low:['Piept inferior','Lower chest'],bk_lat:['Dorsali (lățimea spatelui)','Lats (back width)'],bk_mid:['Spate mijloc (grosime)','Mid back (thickness)'],bk_tr:['Trapez','Traps'],bk_low:['Zona lombară','Lower back'],sh_fr:['Umăr față','Front delts'],sh_lat:['Umăr lateral','Side delts'],sh_rear:['Umăr spate','Rear delts'],ar_bil:['Biceps cap lung','Biceps long head'],ar_bis:['Biceps cap scurt','Biceps short head'],ar_bra:['Brahial (sub biceps)','Brachialis'],ar_tril:['Triceps cap lung','Triceps long head'],ar_trix:['Triceps lateral și medial','Triceps outer heads'],ar_fa:['Antebrațe','Forearms'],lg_q:['Cvadricepși','Quads'],lg_h:['Femurali','Hamstrings'],lg_g:['Fesieri','Glutes'],lg_c:['Gambe','Calves'],co_up:['Abdomen superior','Upper abs'],co_lo:['Abdomen inferior','Lower abs'],co_ob:['Oblici','Obliques'],co_st:['Core profund (stabilitate)','Deep core (stability)']};
 const SUBOF={};Object.entries(SUBL).forEach(([s,a])=>a.forEach(id=>{SUBOF[id]=s}));
+const STG={ch_mid:6,ch_up:5,ch_low:3,bk_lat:7,bk_mid:6,bk_tr:3,bk_low:3,sh_fr:3,sh_lat:8,sh_rear:4,ar_bil:3,ar_bis:3,ar_bra:3,ar_tril:4,ar_trix:4,ar_fa:3,lg_q:9,lg_h:6,lg_g:5,lg_c:6,co_lo:3,co_up:3,co_ob:3,co_st:3};
+const HINGE=new Set([6,14,57,53]);
 const subNm=s=>SUBN[s]?SUBN[s][lang=='ro'?0:1]:'';
 let PSW={};try{PSW=JSON.parse(localStorage.getItem('gl_psw'))||{}}catch(e){}
 const pswSave=()=>{try{localStorage.setItem('gl_psw',JSON.stringify(PSW))}catch(e){}};
@@ -923,23 +925,23 @@ const ro0=()=>lang=='ro',WDF={ro:['Luni','Marți','Miercuri','Joi','Vineri','Sâ
 const levRep=(id,D,l)=>{if(TIMED[id])return TIMED[id];const g=L[id].g,c=CMP.has(id);
  if(homeOnly)return g=='core'?['12-15','15-20','20-30'][l]:['10-15',homeRep(id),'15-25'][l];
  return l==0?'12-15':l==2?(c?'5-8':g=='core'?'15-25':'8-12'):repStr(id,D)};
-const restOf=(id,l)=>TIMED[id]?45:[75,105,CMP.has(id)?120:75][l];
+const restOf=(id,l)=>TIMED[id]?45:CMP.has(id)?[90,120,150][l]:[60,75,75][l];
 function mkWeek(D,fc,lvl){
  lvl=lvl==null?1:lvl;fc=fc||[];
  const fm=g=>fc.some(f=>f==g||(f=='arms'&&(g=='bi'||g=='tri'||g=='fa'))),rot={},use={},sp=s=>SUBL[s].filter(okEx),ctx=(homeOnly?'h':'g')+D+lvl;
- const pick=(g,ex,only)=>{const free=s=>sp(s).filter(id=>!ex.some(e=>e.id==id)),subs=(only?[only]:SUBG[g]).filter(s=>free(s).length);if(!subs.length)return false;
+ const pick=(g,ex,only)=>{const hg=ex.some(e=>HINGE.has(e.id)),free=s=>sp(s).filter(id=>!ex.some(e=>e.id==id)&&!(hg&&HINGE.has(id))),subs0=(only?[only]:SUBG[g].filter(s=>s!='bk_low')).filter(s=>free(s).length);if(!subs0.length)return false;const nw=subs0.filter(s=>!ex.some(e=>e.s==s)),subs=nw.length?nw:subs0;
   const r=rot[g]||0;rot[g]=r+1;const s=subs[r%subs.length],p=free(s),u=use[s]||0;use[s]=u+1;ex.push({id:p[u%p.length],g,s});return true};
- const ss=SP[D].map((type,si)=>{const ex=[];SG[type].forEach(([g0,n])=>{const g=g0=='arm'?(asel.length?asel[si%asel.length]:(si%2?'tri':'bi')):g0;
+ const ss=SP[D].map((type,si)=>{const ex=[];if(type!='full')rot.legs=0;SG[type].forEach(([g0,n])=>{const g=g0=='arm'?(asel.length?asel[si%asel.length]:(si%2?'tri':'bi')):g0;
   const cnt=Math.max(1,n+(fm(g)?1:0)+(lvl==2&&n>1?1:0)-(lvl==0&&n>1?1:0));for(let j=0;j<cnt;j++)if(!pick(g,ex))break});return{type,ex}});
  const has=g=>ss.some(x=>x.ex.some(e=>e.g==g)),gs=['chest','back','shoulders','legs','bi','tri','core'].filter(has);
  if((has('bi')||has('tri'))&&(!asel.length||asel.includes('fa')))gs.push('fa');
- gs.forEach(g=>SUBG[g].forEach(s=>{if(!sp(s).length||ss.some(x=>x.ex.some(e=>e.s==s)))return;
+ gs.forEach(g=>SUBG[g].forEach(s=>{if(!sp(s).length||ss.some(x=>x.ex.some(e=>e.s==s)))return;if(s=='bk_low'&&ss.some(x=>x.ex.some(e=>HINGE.has(e.id))))return;
   const host=g=='fa'?(x=>x.ex.some(e=>e.g=='bi'||e.g=='tri'||e.g=='fa')):(x=>x.ex.some(e=>e.g==g));
-  for(const x of ss.filter(host).sort((a,b)=>a.ex.length-b.ex.length))if(pick(g,x.ex,s))break}));
+  for(const x of ss.filter(host).sort((a,b)=>a.ex.length-b.ex.length||a.ex.filter(e=>CMP.has(e.id)).length-b.ex.filter(e=>CMP.has(e.id)).length))if(pick(g,x.ex,s))break}));
  ss.forEach((x,si)=>{x.ex.forEach(e=>{e.k=ctx+'|'+si+'|'+e.id;const w=PSW[e.k];if(w!=null&&w!=e.id&&L[w]&&okEx(w)&&!x.ex.some(o=>o.id==w)){e.o=e.id;e.id=w;e.s=SUBOF[w]||e.s}});
   x.ex.sort((a,b)=>((a.g=='core')-(b.g=='core'))||((!CMP.has(a.id))-(!CMP.has(b.id))))});
- const wk={};ss.forEach(x=>x.ex.forEach(e=>{wk[e.g]=(wk[e.g]||0)+1}));
- ss.forEach(x=>x.ex.forEach(e=>{e.n=Math.min(e.g=='fa'&&!fm('fa')?3:5,Math.max(lvl==2?3:2,Math.round((TG[e.g]+(fm(e.g)?4:0))*LVM[lvl]/wk[e.g])));e.rep=levRep(e.id,D,lvl);e.rest=restOf(e.id,lvl)}));
+ const wk={};ss.forEach(x=>x.ex.forEach(e=>{wk[e.s]=(wk[e.s]||0)+1}));const fs=e=>fm(e.g)||(e.s=='bk_tr'&&fm('shoulders'));
+ ss.forEach(x=>x.ex.forEach(e=>{e.n=Math.min(e.g=='fa'&&!fm('fa')?3:lvl==2?5:4,Math.max(lvl==2?3:2,Math.round((STG[e.s]||4)*(fs(e)?1.35:1)*LVM[lvl]/wk[e.s])));e.rep=levRep(e.id,D,lvl);e.rest=restOf(e.id,lvl)}));
  return ss}
 function swapDlg(e,x){const b=$('#big'),cur=e.id,base=e.o!=null?e.o:e.id,used=new Set(x.ex.map(o=>o.id));
  const same=SUBL[e.s].filter(id=>id!=cur&&okEx(id)&&!used.has(id)),other=SUBG[e.g].filter(s=>s!=e.s).flatMap(s=>SUBL[s].filter(id=>id!=cur&&okEx(id)&&!used.has(id)));
